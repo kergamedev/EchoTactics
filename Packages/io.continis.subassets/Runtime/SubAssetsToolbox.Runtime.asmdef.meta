@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4fe8e68b5bc1841d0906774ad72212e0
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 284154
+  packageName: SubAssets Toolbox
+  packageVersion: 1.0.1
+  assetPath: Packages/io.continis.subassets/Runtime/SubAssetsToolbox.Runtime.asmdef
+  uploadId: 678484

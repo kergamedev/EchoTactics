@@ -1,0 +1,16 @@
+{
+    "name": "Echo.Match",
+    "rootNamespace": "Echo.Match",
+    "references": [
+        "GUID:eea4d8150a701144ead3728d65c8b500"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

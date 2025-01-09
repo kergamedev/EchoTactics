@@ -1,0 +1,21 @@
+{
+    "name": "Echo.Editor",
+    "rootNamespace": "Echo.Editor",
+    "references": [
+        "GUID:eea4d8150a701144ead3728d65c8b500",
+        "GUID:3cf73f7ccbab4b8498978da3c4210129",
+        "GUID:743ae895eb1641c4bb8b954a6944f8d7",
+        "GUID:3b376061e485e95489978184ca1bfb39"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
