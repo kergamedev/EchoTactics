@@ -1,9 +1,13 @@
-﻿using UnityEngine.AddressableAssets;
+﻿using System.Collections;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
 namespace Echo.Common
 {
+
     public static class Extensions
     {
         #region Addressables
@@ -25,6 +29,26 @@ namespace Echo.Common
 
             scene = handle.Result.Scene;
             return scene.isLoaded;
+        }
+
+        #endregion
+
+        #region Async
+
+        public static IEnumerator WaitForCompletion(this Task task)
+        {
+            yield return new WaitUntil(() => task.IsCompleted);
+            if (task.IsFaulted)
+                throw task.Exception;
+        }
+
+        #endregion
+
+        #region String
+
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return value == null || value == string.Empty;
         }
 
         #endregion

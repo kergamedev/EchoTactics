@@ -1,6 +1,10 @@
 using Echo.Common;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
+using System.Threading.Tasks;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
@@ -16,16 +20,98 @@ namespace Echo.Game
         [SerializeField, FoldoutGroup("Scenes")]
         private AssetReference _matchSceneRef;
 
+        private PlayerAccount _playerAccount;
+
+        public IPlayerAccount PlayerAccount => _playerAccount;
+
         private void Start()
         {
             StartCoroutine(InitalizeAsync());
         }
 
+        #region Initialization
+
         private IEnumerator InitalizeAsync()
         {
             Global.Game = this;
+
+            yield return Utilities.WaitForCompletion(InitializeServicesAsync);
+            yield return Utilities.WaitForCompletion(SignInAsync);
             yield return GoToHomeAsync();
         }
+
+        private async Task InitializeServicesAsync()
+        {
+            try
+            {
+                await UnityServices.InitializeAsync();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("Failed to intialize the unity services");
+                throw exception;
+            }
+        }
+
+        private async Task SignInAsync()
+        {
+            _playerAccount = new PlayerAccount();
+
+            if (AuthenticationService.Instance.SessionTokenExists)
+            {
+                await SignInAnonymouslyAsync();
+                return;
+            }
+
+            #if UNITY_EDITOR
+
+            var method = Editor.EditorUtilities.GetSignInMethod();
+            switch (method)
+            {
+                case Editor.EditorSignInMethod.Anonymous:
+                    await SignInAnonymouslyAsync();
+                    break;
+
+                case Editor.EditorSignInMethod.UnityAccount:
+                    var username = Editor.EditorUtilities.GetUnityAccountUsername();
+                    var password = Editor.EditorUtilities.GetUnityAccountPassword();
+                    try
+                    {
+                        await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogError($"Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
+                        throw exception;
+                    }
+                    break;
+            }
+
+            #else
+
+            await SignInAnonymouslyAsync();
+
+            #endif
+        }
+        private async Task SignInAnonymouslyAsync()
+        {
+            try
+            {
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
+            catch (AuthenticationException authenticationException)
+            {
+                Debug.LogError($"Encoutered an unexpected error while trying to authenticate anonymously. 'ErrorCode={authenticationException.ErrorCode}'");
+                throw authenticationException;
+            }
+            catch (RequestFailedException requestFailedException)
+            {
+                Debug.LogError($"Failed to authenticate anonymously. 'ErrorCode={requestFailedException.ErrorCode}'");
+                throw requestFailedException;
+            }
+        }
+
+        #endregion
 
         #region Load Home
 
@@ -83,6 +169,8 @@ namespace Echo.Game
 
         private void OnDestroy()
         {
+            _playerAccount.Dispose();
+
             Global.Game = null;
         }
     }
