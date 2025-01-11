@@ -11,11 +11,15 @@
                 </engine:Label>
                 <engine:Label text="User should do X to resolve the issue..." name="Description" class="text" style="-unity-text-align: lower-center; margin-bottom: -16px; padding-bottom: 0;">
                     <Bindings>
-                        <engine:DataBinding property="text" data-source-path="Description" binding-mode="ToTarget" data-source-type="Echo.Common.BlockingErrorModel, Echo.Common" />
+                        <engine:DataBinding property="text" data-source-path="Description" data-source-type="Echo.Common.BlockingErrorModel, Echo.Common" binding-mode="ToTarget" />
                     </Bindings>
                 </engine:Label>
             </engine:VisualElement>
-            <engine:Button text="Quit" name="Quit-Button" class="button red" style="margin-top: 64px;" />
+            <engine:Button text="Quit" name="Quit-Button" class="button red" style="margin-top: 64px;">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:9d927db8fc944054db81591a11a4079a" entry="Id(19878978859008)" />
+                </Bindings>
+            </engine:Button>
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

@@ -1,28 +1,19 @@
 ﻿using Sirenix.OdinInspector;
 using Unity.Properties;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace Echo.Common
 {
     public class BlockingErrorModel : Model
-    {       
-        private string _reason;
-        private string _description;
+    {
         private Button _quitButton;
 
         [CreateProperty, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
-        public string Reason
-        {
-            get => _reason;
-            set => _reason = value;
-        }
+        public LocalizedString Reason;
 
         [CreateProperty, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
-        public string Description
-        {
-            get => _description;
-            set => _description = value;
-        }
+        public LocalizedString Description;
 
         protected override void Awake()
         {

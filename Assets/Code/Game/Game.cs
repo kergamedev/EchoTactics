@@ -7,8 +7,11 @@ using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace Echo.Game
 {
@@ -52,6 +55,7 @@ namespace Echo.Game
 
             try
             {
+                await InitializeLocalizationAsync();
                 await InitializeServicesAsync();
                 await SignInAsync();
             }
@@ -67,8 +71,17 @@ namespace Echo.Game
             await GoToHomeAsync();
         }
 
+        private async Task InitializeLocalizationAsync()
+        {
+            await LocalizationSettings.InitializationOperation.Task;
+
+            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
+        }
+
         private async Task InitializeServicesAsync()
         {
+            throw new Exception("Fake...");
+
             try
             {
                 Debug.Log($"[INITIALIZATION] Initalizing Unity services...");
@@ -193,8 +206,8 @@ namespace Echo.Game
 
             if (errorModel != null)
             {
-                errorModel.Reason = reason;
-                errorModel.Description = description;
+                errorModel.Reason = new LocalizedString("Common.Localization", "ERROR_INITIALIZATION_FAIL_REASON");
+                errorModel.Description = new LocalizedString("Common.Localization", "ERROR_INITIALIZATION_FAIL_DESCRIPTION");
             }
         }
 
