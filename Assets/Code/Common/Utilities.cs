@@ -11,7 +11,7 @@ namespace Echo.Common
         public static IEnumerator WaitForCompletion(Func<Task> method)
         {
             var task = method();
-            yield return task.WaitForCompletion();
+            yield return task.WaitForCompletionAsync();
         }
 
         #endregion

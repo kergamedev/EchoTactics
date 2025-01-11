@@ -1,0 +1,64 @@
+.button {
+    align-self: center;
+    -unity-font-definition: url("project://database/Assets/Content/UI/Fonts/LilitaOneRegular.SDF.asset?fileID=11400000&guid=adc6b9d1e5d33b746a99ac6f44247aee&type=2#LilitaOneRegular.SDF");
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Blue.Png?fileID=2800000&guid=6bbcba4e267be464998897741b81d508&type=3#Button01_145_Blue");
+    padding-top: 10px;
+    padding-right: 40px;
+    padding-bottom: 30px;
+    padding-left: 40px;
+    font-size: 132px;
+    color: rgb(241, 241, 241);
+    -unity-text-outline-color: rgb(7, 7, 7);
+    -unity-text-outline-width: 4px;
+    text-shadow: 0 5px 3px rgb(7, 7, 7);
+    -unity-slice-left: 25;
+    -unity-slice-top: 25;
+    -unity-slice-right: 25;
+    -unity-slice-bottom: 25;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    -unity-slice-scale: 1.25px;
+}
+
+.button.red {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Red.Png?fileID=2800000&guid=681db73f19fb24efe843aad713eccb43&type=3#Button01_145_Red");
+}
+
+.unity-button:hover {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Red_Outlined.Png?fileID=2800000&guid=899772fb53e7971488842ff67bf846a1&type=3#Button01_145_Red_Outlined");
+}
+
+.icon {
+    width: 96px;
+    height: 96px;
+}
+
+.icon.large {
+    width: 192px;
+    height: 192px;
+}
+
+.icon.huge {
+    width: 384px;
+    height: 384px;
+}
+
+.text {
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("project://database/Assets/Content/UI/Fonts/LilitaOneRegular.SDF.asset?fileID=11400000&guid=adc6b9d1e5d33b746a99ac6f44247aee&type=2#LilitaOneRegular.SDF");
+    font-size: 68px;
+    color: rgb(241, 241, 241);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(7, 7, 7);
+    text-shadow: 0 3px 2px rgb(7, 7, 7);
+}
+
+.text.error {
+    font-size: 82px;
+    color: rgb(200, 72, 95);
+    -unity-text-outline-color: rgb(10, 5, 6);
+    text-shadow: 0 0 0 rgb(10, 5, 6);
+}

@@ -1,0 +1,21 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Content/UI/StyleSheets/Global.uss?fileID=7433441132597879392&amp;guid=5d8cee8244bb05b4d9ed920c7ba5006e&amp;type=3#Global" />
+    <engine:VisualElement name="Background-Layer-01" style="flex-grow: 1; justify-content: center; background-color: rgb(4, 44, 80);">
+        <engine:VisualElement name="Background-Layer-02" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Demo/Demo_Background/Background_ScreenGlow.png?fileID=2800000&amp;guid=4ee91d319886c4e4b8a4155b88bc8e7f&amp;type=3#Background_ScreenGlow&quot;); justify-content: center; -unity-background-image-tint-color: rgba(128, 128, 128, 0.5);">
+            <engine:VisualElement name="Info" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Frame/ItemFrame01_Count.png?fileID=2800000&amp;guid=8c56c5fdda92b4c74b0de742465022b5&amp;type=3#ItemFrame01_Count&quot;); -unity-slice-left: 25; -unity-slice-top: 25; -unity-slice-right: 25; -unity-slice-bottom: 25; -unity-slice-scale: 2px; -unity-background-image-tint-color: rgba(255, 255, 255, 0.5); margin-right: -42px; margin-left: -42px; justify-content: center; align-items: center; margin-top: 0; margin-bottom: 0; padding-top: 72px; padding-bottom: 72px;">
+                <engine:VisualElement name="Icon" class="icon huge" style="background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Icon_ItemIcons/128/Icon_Adremove.png?fileID=2800000&amp;guid=b78052f66424a414a8af316f2b111fdd&amp;type=3#Icon_Adremove&quot;); margin-bottom: 32px;" />
+                <engine:Label text="Reason..." name="Reason" class="text error" style="margin-bottom: 12px;">
+                    <Bindings>
+                        <engine:DataBinding property="text" data-source-path="Reason" data-source-type="Echo.Common.BlockingErrorModel, Echo.Common" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:Label>
+                <engine:Label text="User should do X to resolve the issue..." name="Description" class="text" style="-unity-text-align: lower-center; margin-bottom: -16px; padding-bottom: 0;">
+                    <Bindings>
+                        <engine:DataBinding property="text" data-source-path="Description" binding-mode="ToTarget" data-source-type="Echo.Common.BlockingErrorModel, Echo.Common" />
+                    </Bindings>
+                </engine:Label>
+            </engine:VisualElement>
+            <engine:Button text="Quit" name="Quit-Button" class="button red" style="margin-top: 64px;" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

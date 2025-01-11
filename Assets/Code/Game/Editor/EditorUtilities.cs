@@ -9,6 +9,7 @@ namespace Echo.Game.Editor
     {
         public const string SIGN_IN_METHOD_PREF_KEY = "SignInMethod";
         public const string UNITY_ACCOUNT_PASSWORD_PREF_KEY = "UnityAcount.Password";
+        public const string ACCOUNT_PLAYER_NAME_KEY = "Acount.PlayerName";
 
         private const string PASSWORD_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!:-_%$*^¨";
 
@@ -32,7 +33,11 @@ namespace Echo.Game.Editor
         public static string GetUnityAccountPassword()
         {
             if (!EditorPrefs.HasKey(UNITY_ACCOUNT_PASSWORD_PREF_KEY))
-                throw new Exception("No password was defined for unity editor sign-in");
+            {
+                var password = GeneratePassword();
+                EditorPrefs.SetString(UNITY_ACCOUNT_PASSWORD_PREF_KEY, password);
+                return password;
+            }
 
             return EditorPrefs.GetString(UNITY_ACCOUNT_PASSWORD_PREF_KEY);
         }
@@ -45,6 +50,18 @@ namespace Echo.Game.Editor
                 password += PASSWORD_CHARS[random.Next(PASSWORD_CHARS.Length)];
 
             return password;
+        }
+
+        public static string GetAccoutPlayerName()
+        {
+            if (!EditorPrefs.HasKey(ACCOUNT_PLAYER_NAME_KEY))
+            {
+                var playerName = PlayerAccount.GeneratePlayerName();
+                EditorPrefs.SetString(ACCOUNT_PLAYER_NAME_KEY, playerName);
+                return playerName;
+            }
+
+            return EditorPrefs.GetString(ACCOUNT_PLAYER_NAME_KEY);
         }
     }
 }

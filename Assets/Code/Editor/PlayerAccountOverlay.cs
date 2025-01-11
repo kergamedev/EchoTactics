@@ -1,3 +1,4 @@
+using Echo.Game;
 using Echo.Game.Editor;
 using UnityEditor;
 using UnityEditor.Overlays;
@@ -18,6 +19,9 @@ namespace Echo.Editor
 
             if (!EditorPrefs.HasKey(EditorUtilities.UNITY_ACCOUNT_PASSWORD_PREF_KEY))
                 EditorPrefs.SetString(EditorUtilities.UNITY_ACCOUNT_PASSWORD_PREF_KEY, EditorUtilities.GeneratePassword());
+
+            if (!EditorPrefs.HasKey(EditorUtilities.UNITY_ACCOUNT_PASSWORD_PREF_KEY))
+                EditorPrefs.SetString(EditorUtilities.UNITY_ACCOUNT_PASSWORD_PREF_KEY, PlayerAccount.GeneratePlayerName());
 
             base.OnCreated();
         }
@@ -54,6 +58,12 @@ namespace Echo.Editor
                 if (newPassword != previousPassword)
                     EditorPrefs.SetString(EditorUtilities.UNITY_ACCOUNT_PASSWORD_PREF_KEY, newPassword);
             }
+
+            var previousPlayerName = EditorPrefs.GetString(EditorUtilities.ACCOUNT_PLAYER_NAME_KEY);
+            var newPlayerName = EditorGUILayout.TextField("Player Name", previousPlayerName);
+
+            if (newPlayerName != previousPlayerName)
+                EditorPrefs.SetString(EditorUtilities.ACCOUNT_PLAYER_NAME_KEY, newPlayerName);
 
             EditorGUIUtility.labelWidth = previousLabelWidth;
             EditorGUIUtility.fieldWidth = previousFieldWidth;

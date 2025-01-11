@@ -2,6 +2,7 @@
 {
     public interface IPlayerAccount
     {
+        string GetPlayerId();
         string GetPlayerName();
     }
 }

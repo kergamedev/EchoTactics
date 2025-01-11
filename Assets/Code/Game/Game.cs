@@ -14,53 +14,91 @@ namespace Echo.Game
 {
     public class Game : MonoBehaviour, IGame
     {
+        [SerializeField, FoldoutGroup("Transitions")]
+        private RoutineBehaviour _splashScreenBehaviour;
+
+        [SerializeField, FoldoutGroup("Transitions")]
+        private RoutineBehaviour _quitBehaviour;
+
         [SerializeField, FoldoutGroup("Scenes")]
         private AssetReference _homeSceneRef;
 
         [SerializeField, FoldoutGroup("Scenes")]
         private AssetReference _matchSceneRef;
 
+        [SerializeField, FoldoutGroup("Scenes")]
+        private AssetReference _earlyOutSceneRef;
+
+        [SerializeField, FoldoutGroup("References")]
+        private TweenLibrary _tweenLibrary;
+
         private PlayerAccount _playerAccount;
 
+        public TweenLibrary TweenLibrary => _tweenLibrary;
         public IPlayerAccount PlayerAccount => _playerAccount;
 
-        private void Start()
+        private async void Start()
         {
-            StartCoroutine(InitalizeAsync());
+            await InitializeAsync();
+            await _splashScreenBehaviour.AsTask();
         }
 
         #region Initialization
 
-        private IEnumerator InitalizeAsync()
+        private async Task InitializeAsync()
         {
+            Debug.Log($"[INITIALIZATION] Starting initialization...");
             Global.Game = this;
 
-            yield return Utilities.WaitForCompletion(InitializeServicesAsync);
-            yield return Utilities.WaitForCompletion(SignInAsync);
-            yield return GoToHomeAsync();
+            try
+            {
+                await InitializeServicesAsync();
+                await SignInAsync();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[INITIALIZATION] Caught an unexpected error while trying to initialize game");
+                Debug.LogException(exception);
+
+                await HandleErrorAsync("Couldn't start game", "Please try again later");
+                return;
+            }
+
+            await GoToHomeAsync();
         }
 
         private async Task InitializeServicesAsync()
         {
             try
             {
+                Debug.Log($"[INITIALIZATION] Initalizing Unity services...");
                 await UnityServices.InitializeAsync();
             }
             catch (Exception exception)
             {
-                Debug.LogError("Failed to intialize the unity services");
+                Debug.LogError("[INITIALIZATION] Failed to intialize Unity services");
                 throw exception;
             }
         }
 
         private async Task SignInAsync()
         {
+            Debug.Log($"[SIGN-IN] Starting sign in...");
             _playerAccount = new PlayerAccount();
 
             if (AuthenticationService.Instance.SessionTokenExists)
             {
-                await SignInAnonymouslyAsync();
-                return;
+                try
+                {
+                    Debug.Log($"[SIGN-IN] Signing in with session token");
+                    await SignInAnonymouslyAsync(withLogging: false);
+                    return;
+                }
+                catch
+                {
+                    Debug.LogWarning("[SIGN-IN] Session token doesn't seem to be valid anymore");
+                    AuthenticationService.Instance.ClearSessionToken();
+                }                            
             }
 
             #if UNITY_EDITOR
@@ -77,11 +115,12 @@ namespace Echo.Game
                     var password = Editor.EditorUtilities.GetUnityAccountPassword();
                     try
                     {
+                        Debug.Log($"[SIGN-IN] Signing with 'Username={username} and 'Password={password}'");
                         await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
                     }
                     catch (Exception exception)
                     {
-                        Debug.LogError($"Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
+                        Debug.LogError($"[SIGN-IN] Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
                         throw exception;
                     }
                     break;
@@ -92,22 +131,70 @@ namespace Echo.Game
             await SignInAnonymouslyAsync();
 
             #endif
+
+            if (AuthenticationService.Instance.PlayerName.IsNullOrEmpty())
+            {
+                var playerName = string.Empty;
+
+                #if UNITY_EDITOR
+                
+                playerName = Editor.EditorUtilities.GetAccoutPlayerName();
+
+                #else
+
+                playerName = Echo.Game.PlayerAccount.GeneratePlayerName();
+
+                #endif
+
+                try 
+                {
+                    Debug.Log($"[SIGN-IN] 'Player={PlayerAccount.GetPlayerId()}' has no name set. Setting it to '{playerName}'");
+                    await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError($"[SIGN-IN] Failed to set player name to '{playerName}'");
+                    throw exception;
+                }
+            }
         }
-        private async Task SignInAnonymouslyAsync()
+        private async Task SignInAnonymouslyAsync(bool withLogging = true)
         {
             try
             {
+                if (withLogging)
+                    Debug.Log($"[SIGN-IN] Signing in anonymously");
+                
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
             }
             catch (AuthenticationException authenticationException)
             {
-                Debug.LogError($"Encoutered an unexpected error while trying to authenticate anonymously. 'ErrorCode={authenticationException.ErrorCode}'");
+                if (withLogging)
+                    Debug.LogError($"[SIGN-IN] Encoutered an unexpected error while trying to authenticate anonymously. 'ErrorCode={authenticationException.ErrorCode}'");
+                
                 throw authenticationException;
             }
             catch (RequestFailedException requestFailedException)
             {
-                Debug.LogError($"Failed to authenticate anonymously. 'ErrorCode={requestFailedException.ErrorCode}'");
+                if (withLogging)
+                    Debug.LogError($"[SIGN-IN] Failed to authenticate anonymously. 'ErrorCode={requestFailedException.ErrorCode}'");
+
                 throw requestFailedException;
+            }
+        }
+
+        private async Task HandleErrorAsync(string reason, string description)
+        {
+            var operation = Addressables.LoadSceneAsync(_earlyOutSceneRef, LoadSceneMode.Additive);
+            await operation.Task;
+
+            var scene = operation.Result.Scene;
+            var errorModel = scene.GetComponentInRoots<BlockingErrorModel>();
+
+            if (errorModel != null)
+            {
+                errorModel.Reason = reason;
+                errorModel.Description = description;
             }
         }
 
@@ -115,61 +202,80 @@ namespace Echo.Game
 
         #region Load Home
 
-        public void GoToHome()
+        public async void GoToHome()
         {
-            StartCoroutine(GoToHomeAsync());
+            await GoToHomeAsync();
         }
-        private IEnumerator GoToHomeAsync()
+        private async Task GoToHomeAsync()
         {
             if (_matchSceneRef.IsLoaded())
-                yield return UnloadMatch();
+                await UnloadMatch();
 
             var operation = Addressables.LoadSceneAsync(_homeSceneRef, LoadSceneMode.Additive);
-            yield return operation;
+            await operation.Task;
         }
 
-        private IEnumerator UnloadHome()
+        private async Task UnloadHome()
         {
             if (!_homeSceneRef.IsLoaded())
-                yield break;
+                return;
 
             var handle = _homeSceneRef.OperationHandle.Convert<SceneInstance>();
             var operation = Addressables.UnloadSceneAsync(handle.Result);
-            yield return operation;
+            await operation.Task;
         }
 
         #endregion
 
         #region Load Match
 
-        public void GoToMatch()
+        public async void GoToMatch()
         {
-            StartCoroutine(GoToMatchAsync());
+            await GoToMatchAsync();
         }
-        private IEnumerator GoToMatchAsync()
+        private async Task GoToMatchAsync()
         {
             if (_homeSceneRef.IsLoaded())
-                yield return UnloadHome();
+                await UnloadHome();
 
             var operation = Addressables.LoadSceneAsync(_matchSceneRef, LoadSceneMode.Additive);
-            yield return operation;
+            await operation.Task;
         }
 
-        private IEnumerator UnloadMatch()
+        private async Task UnloadMatch()
         {
             if (!_matchSceneRef.IsLoaded())
-                yield break;
+                return;
 
             var handle = _matchSceneRef.OperationHandle.Convert<SceneInstance>();
             var operation = Addressables.UnloadSceneAsync(handle.Result);
-            yield return operation;
+            await operation.Task;
         }
 
         #endregion
 
+        public void Quit()
+        {
+            StartCoroutine(QuitAsync());
+        }
+        public IEnumerator QuitAsync()
+        {
+            yield return _quitBehaviour.RunAsync();
+
+            #if UNITY_EDITOR
+
+            UnityEditor.EditorApplication.ExitPlaymode();
+            
+            #else
+
+            Application.Quit();
+
+            #endif
+        }
+
         private void OnDestroy()
         {
-            _playerAccount.Dispose();
+            _playerAccount?.Dispose();
 
             Global.Game = null;
         }

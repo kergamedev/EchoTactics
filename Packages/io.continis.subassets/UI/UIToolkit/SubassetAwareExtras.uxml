@@ -1,5 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <Style src="project://database/Assets/UIToolkit/Styles.uss?fileID=7433441132597879392&amp;guid=6e16c6dfd32f847f4a11bb13556553e5&amp;type=3#Styles" />
-    <ui:VisualElement name="Separator" />
-    <ui:ListView show-foldout-header="true" header-title="Sub-Assets" show-bound-collection-size="false" selection-type="Single" name="SubAssetsList" reorderable="true" show-add-remove-footer="false" reorder-mode="Animated" show-border="false" show-alternating-row-backgrounds="None" horizontal-scrolling="false" />
-</ui:UXML>

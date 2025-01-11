@@ -14,7 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Game.Group
   m_GUID: d979fb56b791cef4ab55557a0e4cc345
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 4476d53c768b4e447b3d67f2043d3ed8
+    m_Address: Assets/Content/Scenes/EarlyOut.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6fc690afc5100464db8e4f7a3bbdcb95, type: 2}
   m_SchemaSet:
