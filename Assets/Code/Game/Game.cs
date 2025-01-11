@@ -36,9 +36,11 @@ namespace Echo.Game
         private TweenLibrary _tweenLibrary;
 
         private PlayerAccount _playerAccount;
+        private CloudSaveSystem _saveSystem;
 
         public TweenLibrary TweenLibrary => _tweenLibrary;
         public IPlayerAccount PlayerAccount => _playerAccount;
+        public ISaveSystem SaveSystem => _saveSystem;
 
         private async void Start()
         {
@@ -55,33 +57,27 @@ namespace Echo.Game
 
             try
             {
-                await InitializeLocalizationAsync();
                 await InitializeServicesAsync();
                 await SignInAsync();
+
+                InitializeSave();
+
+                await InitializeLocalizationAsync();
             }
             catch (Exception exception)
             {
                 Debug.LogError("[INITIALIZATION] Caught an unexpected error while trying to initialize game");
                 Debug.LogException(exception);
 
-                await HandleErrorAsync("Couldn't start game", "Please try again later");
+                await HandleErrorAsync();
                 return;
             }
 
             await GoToHomeAsync();
         }
 
-        private async Task InitializeLocalizationAsync()
-        {
-            await LocalizationSettings.InitializationOperation.Task;
-
-            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
-        }
-
         private async Task InitializeServicesAsync()
         {
-            throw new Exception("Fake...");
-
             try
             {
                 Debug.Log($"[INITIALIZATION] Initalizing Unity services...");
@@ -196,7 +192,33 @@ namespace Echo.Game
             }
         }
 
-        private async Task HandleErrorAsync(string reason, string description)
+        private void InitializeSave()
+        {
+            Debug.Log($"[SAVE] Initializing Save System...");
+            _saveSystem = new CloudSaveSystem();
+        }
+
+        private async Task InitializeLocalizationAsync()
+        {
+            Debug.Log($"[LOCALIZATION] Waiting for localization initialization...");
+            await LocalizationSettings.InitializationOperation.Task;
+            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
+
+            var savedLocaleCode = await SaveSystem.LoadKeyValue<string>(SaveKeys.SELECTED_LOCALE);
+            if (!savedLocaleCode.IsNullOrEmpty())
+            {
+                var savedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier(savedLocaleCode));
+                if (savedLocale != null && LocalizationSettings.SelectedLocale != savedLocale)
+                {
+                    Debug.LogWarning($"[LOCALIZATION] Correcting mismatch between 'InitialLocale={LocalizationSettings.SelectedLocale.Identifier}' and 'SavedLocale={savedLocale.Identifier}'");
+
+                    LocalizationSettings.SelectedLocale = savedLocale;
+                    PlayerPrefs.SetString(SaveKeys.SELECTED_LOCALE, savedLocaleCode);
+                }
+            }
+        }
+
+        private async Task HandleErrorAsync()
         {
             var operation = Addressables.LoadSceneAsync(_earlyOutSceneRef, LoadSceneMode.Additive);
             await operation.Task;
@@ -266,6 +288,15 @@ namespace Echo.Game
         }
 
         #endregion
+
+        public async Task ChangeLocaleAsync(Locale locale)
+        {
+            LocalizationSettings.SelectedLocale = locale;
+            var localeCode = locale.Identifier.Code;
+
+            await _saveSystem.SaveKeyValue(SaveKeys.SELECTED_LOCALE, localeCode);
+            PlayerPrefs.SetString(SaveKeys.SELECTED_LOCALE, localeCode);
+        }
 
         public void Quit()
         {

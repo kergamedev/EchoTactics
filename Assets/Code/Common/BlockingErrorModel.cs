@@ -1,4 +1,5 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using Unity.Properties;
 using UnityEngine.Localization;
 using UnityEngine.UIElements;
@@ -9,10 +10,10 @@ namespace Echo.Common
     {
         private Button _quitButton;
 
-        [CreateProperty, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
+        [CreateProperty, NonSerialized, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
         public LocalizedString Reason;
 
-        [CreateProperty, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
+        [CreateProperty, NonSerialized, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
         public LocalizedString Description;
 
         protected override void Awake()

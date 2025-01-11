@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Echo.Common;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Overlays;
 using UnityEngine;
@@ -31,8 +32,8 @@ namespace Echo.Editor
             var previouslySelectedOptionIndex = LocalizationSettings.AvailableLocales.Locales.IndexOf(LocalizationSettings.SelectedLocale);
             var newlySelectedOptionIndex = EditorGUILayout.Popup(previouslySelectedOptionIndex, options);
 
-            if (newlySelectedOptionIndex != previouslySelectedOptionIndex)
-                LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[newlySelectedOptionIndex];
+            if (newlySelectedOptionIndex != previouslySelectedOptionIndex)            
+                Global.Game.ChangeLocaleAsync(LocalizationSettings.AvailableLocales.Locales[newlySelectedOptionIndex]);
         }
 
         private MessageType CheckValidity(out string message)
