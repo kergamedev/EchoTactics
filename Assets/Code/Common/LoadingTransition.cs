@@ -24,11 +24,18 @@ namespace Echo.Common
         [SerializeField]
         private RoutineBehaviour _end;
 
+        private Coroutine _currentHandle;
+
         public State CurrentState { get; private set; }
+
+        private void OnEnable()
+        {
+            CurrentState = State.None;
+        }
 
         public void Begin()
         {
-            StartCoroutine(BeginAsync());
+            _currentHandle = StartCoroutine(BeginAsync());
         }
         public IEnumerator BeginAsync()
         {
@@ -39,11 +46,12 @@ namespace Echo.Common
             yield return _begin.RunAsync();
 
             CurrentState = State.Loading;
+            _currentHandle = null;
         }
 
         public void End()
         {
-            StartCoroutine(EndAsync());
+            _currentHandle = StartCoroutine(EndAsync());
         }
         public IEnumerator EndAsync()
         {
@@ -54,6 +62,15 @@ namespace Echo.Common
             yield return _end.RunAsync();
 
             CurrentState = State.None;
+            _currentHandle = null;
+        }
+
+        private void OnDisable()
+        {
+            if (_currentHandle != null)
+                StopCoroutine(_currentHandle);
+
+            _currentHandle = null;
         }
     }
 }

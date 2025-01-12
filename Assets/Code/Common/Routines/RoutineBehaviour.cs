@@ -20,5 +20,13 @@ namespace Echo.Common
         }
 
         public abstract IEnumerator RunAsync();
+
+        protected virtual void OnDisable()
+        {
+            if (_handle != null)
+                StopCoroutine(_handle);
+
+            _handle = null;
+        }
     }
 }

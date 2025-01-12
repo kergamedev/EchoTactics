@@ -6,7 +6,7 @@ namespace Echo.Home
 {
     public class Home : MonoBehaviour, IHome
     {
-        private void Awake()
+        private void OnEnable()
         {
             Global.Home = this;
         }
@@ -16,7 +16,7 @@ namespace Echo.Home
             await Global.Game.GoToMatchAsync();
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             Global.Home = null;
         }

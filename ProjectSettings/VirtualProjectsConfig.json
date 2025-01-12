@@ -1,4 +1,6 @@
 {
-  "PlayerTags": [],
+  "PlayerTags": [
+    "PlayerSuffix.Dup01"
+  ],
   "version": "1.3.3"
 }

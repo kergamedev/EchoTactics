@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 
 using System;
+using System.Linq;
+using Unity.Multiplayer.Playmode;
 using UnityEditor;
 
 namespace Echo.Game.Editor
@@ -13,8 +15,16 @@ namespace Echo.Game.Editor
 
         private const string PASSWORD_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!:-_%$*^¨";
 
+        public static bool IsMainEditorPlayer()
+        {
+            return !CurrentPlayer.ReadOnlyTags().Any(tag => tag.Contains("PlayerSuffix"));
+        }
+
         public static EditorSignInMethod GetSignInMethod()
         {
+            if (!IsMainEditorPlayer())
+                return EditorSignInMethod.UnityAccount;
+
             if (!EditorPrefs.HasKey(SIGN_IN_METHOD_PREF_KEY))
                 return EditorSignInMethod.Anonymous;
 
@@ -26,6 +36,9 @@ namespace Echo.Game.Editor
             var username = CloudProjectSettings.userName;
             if (username.Contains('@'))
                 username = username.Split('@')[0];
+
+            if (!IsMainEditorPlayer())
+                username += $"-{GetAuxiliaryPlayerSuffix()}";
 
             return username;
         }
@@ -54,15 +67,31 @@ namespace Echo.Game.Editor
 
         public static string GetAccoutPlayerName()
         {
+            var playerName = string.Empty;
+
             if (!EditorPrefs.HasKey(ACCOUNT_PLAYER_NAME_KEY))
             {
-                var playerName = PlayerAccount.GeneratePlayerName();
+                playerName = PlayerAccount.GeneratePlayerName();
                 EditorPrefs.SetString(ACCOUNT_PLAYER_NAME_KEY, playerName);
-                return playerName;
             }
+            else playerName = EditorPrefs.GetString(ACCOUNT_PLAYER_NAME_KEY);
 
-            return EditorPrefs.GetString(ACCOUNT_PLAYER_NAME_KEY);
+            if (!IsMainEditorPlayer())
+                playerName += $".{GetAuxiliaryPlayerSuffix()}";
+
+            return playerName;
         }
+
+        #region Utility
+
+        private static string GetAuxiliaryPlayerSuffix()
+        {
+            var multiplayerTags = CurrentPlayer.ReadOnlyTags();
+            var suffixTag = multiplayerTags.First(tag => tag.Contains("PlayerSuffix"));
+            return suffixTag.Split('.')[1];
+        }
+
+        #endregion
     }
 }
 

@@ -17,6 +17,27 @@ namespace Echo.Game
 {
     public class Game : MonoBehaviour, IGame
     {
+        #if UNITY_EDITOR
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void OnBeforePlay()
+        {
+            DoGlobalReset();
+        }
+
+        private static void OnPlayModeStateChange(UnityEditor.PlayModeStateChange stateChange)
+        {
+            if (stateChange == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+                DoGlobalReset();
+        }
+
+        private static void DoGlobalReset()
+        {
+            Global.Reset();
+        }
+
+        #endif
+
         [SerializeField, FoldoutGroup("Transitions")]
         private RoutineBehaviour _splashScreenTransition;
 
@@ -47,13 +68,10 @@ namespace Echo.Game
         public IPlayerAccount PlayerAccount => _playerAccount;
         public ISaveSystem SaveSystem => _saveSystem;
 
-        private void Awake()
+        private async void OnEnable()
         {
             Global.Game = this;
-        }
 
-        private async void Start()
-        {
             await InitializeAsync();
             await _splashScreenTransition.AsTask();
         }
@@ -109,7 +127,16 @@ namespace Echo.Game
             Debug.Log($"[SIGN-IN] Starting sign in...");
             _playerAccount = new PlayerAccount();
 
-            if (AuthenticationService.Instance.SessionTokenExists)
+            var canUseSessionToken = true;
+
+            #if UNITY_EDITOR
+
+            if (!Editor.EditorUtilities.IsMainEditorPlayer())
+                canUseSessionToken = false;
+
+            #endif
+
+            if (canUseSessionToken && AuthenticationService.Instance.SessionTokenExists)
             {
                 try
                 {
@@ -136,15 +163,24 @@ namespace Echo.Game
                 case Editor.EditorSignInMethod.UnityAccount:
                     var username = Editor.EditorUtilities.GetUnityAccountUsername();
                     var password = Editor.EditorUtilities.GetUnityAccountPassword();
+
                     try
                     {
-                        Debug.Log($"[SIGN-IN] Signing with 'Username={username} and 'Password={password}'");
-                        await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+                        Debug.Log($"[SIGN-IN] Trying to sign-in 'Username={username} and 'Password={password}'");
+                        await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
                     }
-                    catch (Exception exception)
+                    catch
                     {
-                        Debug.LogError($"[SIGN-IN] Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
-                        throw exception;
+                        Debug.LogWarning($"[SIGN-IN] Failed to sign-in with 'Username={username} and 'Password={password}'. Trying sign-up");
+                        try
+                        {
+                            await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+                        }
+                        catch (Exception exception)
+                        {
+                            Debug.LogError($"[SIGN-IN] Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
+                            throw exception;
+                        }                       
                     }
                     break;
             }
@@ -331,10 +367,16 @@ namespace Echo.Game
             #endif
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            _playerAccount?.Dispose();
+            _homeScene = null;
+            _matchScene = null;
 
+            _playerAccount?.Dispose();
+            _playerAccount = null;
+
+            _saveSystem = null;
+            
             Global.Game = null;
         }
     }
