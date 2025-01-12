@@ -18,10 +18,13 @@ namespace Echo.Game
     public class Game : MonoBehaviour, IGame
     {
         [SerializeField, FoldoutGroup("Transitions")]
-        private RoutineBehaviour _splashScreenBehaviour;
+        private RoutineBehaviour _splashScreenTransition;
 
         [SerializeField, FoldoutGroup("Transitions")]
-        private RoutineBehaviour _quitBehaviour;
+        private RoutineBehaviour _quitTransition;
+
+        [SerializeField, FoldoutGroup("Transitions")]
+        private LoadingTransition _genericLoadingTransition;
 
         [SerializeField, FoldoutGroup("Scenes")]
         private AssetReference _homeSceneRef;
@@ -35,6 +38,8 @@ namespace Echo.Game
         [SerializeField, FoldoutGroup("References")]
         private TweenLibrary _tweenLibrary;
 
+        private SceneInstance? _homeScene;
+        private SceneInstance? _matchScene;
         private PlayerAccount _playerAccount;
         private CloudSaveSystem _saveSystem;
 
@@ -42,10 +47,15 @@ namespace Echo.Game
         public IPlayerAccount PlayerAccount => _playerAccount;
         public ISaveSystem SaveSystem => _saveSystem;
 
+        private void Awake()
+        {
+            Global.Game = this;
+        }
+
         private async void Start()
         {
             await InitializeAsync();
-            await _splashScreenBehaviour.AsTask();
+            await _splashScreenTransition.AsTask();
         }
 
         #region Initialization
@@ -53,16 +63,13 @@ namespace Echo.Game
         private async Task InitializeAsync()
         {
             Debug.Log($"[INITIALIZATION] Starting initialization...");
-            Global.Game = this;
-
+           
             try
             {
+                await InitializeLocalizationAsync();
                 await InitializeServicesAsync();
                 await SignInAsync();
-
-                InitializeSave();
-
-                await InitializeLocalizationAsync();
+                await InitializeSaveAsync();
             }
             catch (Exception exception)
             {
@@ -73,7 +80,14 @@ namespace Echo.Game
                 return;
             }
 
-            await GoToHomeAsync();
+            await GoToHomeAsync(withTransition: false);
+        }
+
+        private async Task InitializeLocalizationAsync()
+        {
+            Debug.Log($"[LOCALIZATION] Waiting for localization initialization...");
+            await LocalizationSettings.InitializationOperation.Task;
+            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
         }
 
         private async Task InitializeServicesAsync()
@@ -192,17 +206,10 @@ namespace Echo.Game
             }
         }
 
-        private void InitializeSave()
+        private async Task InitializeSaveAsync()
         {
             Debug.Log($"[SAVE] Initializing Save System...");
             _saveSystem = new CloudSaveSystem();
-        }
-
-        private async Task InitializeLocalizationAsync()
-        {
-            Debug.Log($"[LOCALIZATION] Waiting for localization initialization...");
-            await LocalizationSettings.InitializationOperation.Task;
-            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
 
             var savedLocaleCode = await SaveSystem.LoadKeyValue<string>(SaveKeys.SELECTED_LOCALE);
             if (!savedLocaleCode.IsNullOrEmpty())
@@ -237,54 +244,61 @@ namespace Echo.Game
 
         #region Load Home
 
-        public async void GoToHome()
+        public async Task GoToHomeAsync(bool withTransition = true)
         {
-            await GoToHomeAsync();
-        }
-        private async Task GoToHomeAsync()
-        {
-            if (_matchSceneRef.IsLoaded())
+            if (withTransition)
+                await _genericLoadingTransition.StartAsTask();
+
+            if (_matchScene.IsLoaded())
                 await UnloadMatch();
 
             var operation = Addressables.LoadSceneAsync(_homeSceneRef, LoadSceneMode.Additive);
             await operation.Task;
+
+            _homeScene = operation.Result;
+            
+            if (withTransition)
+                await _genericLoadingTransition.EndAsTask();
         }
 
         private async Task UnloadHome()
         {
-            if (!_homeSceneRef.IsLoaded())
+            if (!_homeScene.IsLoaded())
                 return;
 
-            var handle = _homeSceneRef.OperationHandle.Convert<SceneInstance>();
-            var operation = Addressables.UnloadSceneAsync(handle.Result);
+            var operation = Addressables.UnloadSceneAsync(_homeScene.Value);
             await operation.Task;
+
+            _homeScene = null;
         }
 
         #endregion
 
         #region Load Match
 
-        public async void GoToMatch()
+        public async Task GoToMatchAsync()
         {
-            await GoToMatchAsync();
-        }
-        private async Task GoToMatchAsync()
-        {
-            if (_homeSceneRef.IsLoaded())
+            await _genericLoadingTransition.StartAsTask();
+
+            if (_homeScene.IsLoaded())
                 await UnloadHome();
 
             var operation = Addressables.LoadSceneAsync(_matchSceneRef, LoadSceneMode.Additive);
             await operation.Task;
+
+            _matchScene = operation.Result;
+            await _genericLoadingTransition.EndAsTask();
         }
 
         private async Task UnloadMatch()
         {
-            if (!_matchSceneRef.IsLoaded())
+            if (!_matchScene.IsLoaded())
                 return;
 
-            var handle = _matchSceneRef.OperationHandle.Convert<SceneInstance>();
-            var operation = Addressables.UnloadSceneAsync(handle.Result);
+            var operation = Addressables.UnloadSceneAsync(_matchScene.Value);
             await operation.Task;
+
+            _matchScene = null;
         }
 
         #endregion
@@ -304,7 +318,7 @@ namespace Echo.Game
         }
         public IEnumerator QuitAsync()
         {
-            yield return _quitBehaviour.RunAsync();
+            yield return _quitTransition.RunAsync();
 
             #if UNITY_EDITOR
 

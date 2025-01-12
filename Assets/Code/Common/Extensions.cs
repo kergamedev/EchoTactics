@@ -10,24 +10,14 @@ namespace Echo.Common
 {
     public static class Extensions
     {
-        #region Addressables
+        #region Scene management
 
-        public static bool IsLoaded(this AssetReference assetRef)
+        public static bool IsLoaded(this SceneInstance? instance)
         {
-            return IsLoaded(assetRef, out _);
-        }
-        public static bool IsLoaded(this AssetReference assetRef, out Scene scene)
-        {
-            scene = default;
-
-            if (!assetRef.OperationHandle.IsValid())
+            if (instance == null)
                 return false;
 
-            var handle = assetRef.OperationHandle.Convert<SceneInstance>();
-            if (!handle.IsValid())
-                return false;
-
-            scene = handle.Result.Scene;
+            var scene = instance.Value.Scene;
             return scene.isLoaded;
         }
 
@@ -55,9 +45,34 @@ namespace Echo.Common
             return task;
         }
 
+        public static Task StartAsTask(this LoadingTransition loadingTransition)
+        {
+            loadingTransition.Begin();
+            var task = new Task(() =>
+            {
+                while (loadingTransition.CurrentState != LoadingTransition.State.Loading)
+                    continue;
+            });
+
+            task.Start();
+            return task;
+        }
+        public static Task EndAsTask(this LoadingTransition loadingTransition)
+        {
+            loadingTransition.End();
+            var task = new Task(() =>
+            {
+                while (loadingTransition.CurrentState != LoadingTransition.State.None)
+                    continue;
+            });
+
+            task.Start();
+            return task;
+        }
+
         #endregion
 
-        #region Animation Curve
+        #region Animation curve
 
         public static float GetDuration(this AnimationCurve curve)
         {

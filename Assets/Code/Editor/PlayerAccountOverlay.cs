@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Echo.Editor
 {
-    [Overlay(editorWindowType = typeof(SceneView), displayName = "Player Account"), Icon("Assets/Editor/Icons/InDevelopment.EditorIcon.png")]
+    [Overlay(editorWindowType = typeof(SceneView), displayName = "Player Account", defaultDisplay = false), Icon("Assets/Editor/Icons/InDevelopment.EditorIcon.png")]
     public class PlayerAccountOverlay : Overlay
     {
         private IMGUIContainer _container;

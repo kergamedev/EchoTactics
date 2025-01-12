@@ -16,7 +16,7 @@ namespace Echo.Common
         [CreateProperty, NonSerialized, ReadOnly, ShowInInspector, FoldoutGroup("Data"), HideInEditorMode]
         public LocalizedString Description;
 
-        protected override void Awake()
+        private void Start()
         {
             base.Awake();
 
@@ -24,7 +24,7 @@ namespace Echo.Common
             _quitButton.clicked += Quit;         
         }
 
-        public void Quit()
+        private void Quit()
         {
             Global.Game.TweenLibrary.DoButtonClick(_quitButton);
             Global.Game.Quit();

@@ -1,13 +1,24 @@
 using Echo.Common;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Echo.Home
 {
-    public class Home : MonoBehaviour
+    public class Home : MonoBehaviour, IHome
     {
-        public void GoToMatch()
+        private void Awake()
         {
-            Global.Game.GoToMatch();
+            Global.Home = this;
+        }
+
+        public async Task GoToMatchAsync()
+        {
+            await Global.Game.GoToMatchAsync();
+        }
+
+        private void OnDestroy()
+        {
+            Global.Home = null;
         }
     }
 }

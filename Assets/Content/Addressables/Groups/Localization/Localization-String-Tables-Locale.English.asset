@@ -22,6 +22,12 @@ MonoBehaviour:
     - Locale-en
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cddbb49e9da2c064ebc1f67b15cfcdbb
+    m_Address: Home.Localization_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 6fc690afc5100464db8e4f7a3bbdcb95, type: 2}
   m_SchemaSet:

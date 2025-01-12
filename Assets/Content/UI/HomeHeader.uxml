@@ -1,0 +1,18 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Content/UI/StyleSheets/Global.uss?fileID=7433441132597879392&amp;guid=5d8cee8244bb05b4d9ed920c7ba5006e&amp;type=3#Global" />
+    <engine:VisualElement name="Frame" style="flex-grow: 0; flex-direction: row; padding-top: 48px; padding-right: 0; padding-bottom: 48px; padding-left: 0; justify-content: space-between;">
+        <engine:VisualElement name="UserInfo" style="flex-grow: 0; flex-direction: row; padding-left: 48px;">
+            <engine:VisualElement name="Level" style="flex-grow: 1; flex-direction: row;">
+                <engine:VisualElement name="Background" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Slider/Slider_Level02_Badge.png?fileID=2800000&amp;guid=4de8d2fa3ab064c2ebde730c924aba50&amp;type=3#Slider_Level02_Badge&quot;); -unity-background-scale-mode: scale-to-fit; width: 172px; height: 172px;">
+                    <engine:Label text="1" class="text" style="flex-grow: 1; bottom: 10px; font-size: 94px;" />
+                </engine:VisualElement>
+                <engine:Label text="PlayerName" name="PlayerName" class="text" style="-unity-text-align: middle-center; bottom: 30px; padding-left: 8px;" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="Settings" style="flex-grow: 0;">
+            <engine:VisualElement name="Background" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button_FlushRight_Gray.png?fileID=2800000&amp;guid=f337ec50763134ed1bbb82848ae3b024&amp;type=3#Button_FlushRight_Gray&quot;); height: 172px; width: 215px; -unity-slice-left: 50; -unity-slice-scale: 1.5px;">
+                <engine:VisualElement name="Icon" style="flex-grow: 1; -unity-background-scale-mode: scale-to-fit; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/IconMisc/Icon_PictoIcon_Setting.png?fileID=2800000&amp;guid=bb686ea4c141046129a10074d93b72fd&amp;type=3#Icon_PictoIcon_Setting&quot;); margin-right: 48px; margin-bottom: 36px; margin-top: 18px; margin-left: 42px;" />
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

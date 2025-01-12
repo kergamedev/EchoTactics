@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Echo.Editor
 {
-    [Overlay(editorWindowType = typeof(SceneView), displayName = "Localization"), Icon("Assets/Editor/Icons/ProfilerUIDetails.EditorIcon.png")]
+    [Overlay(editorWindowType = typeof(SceneView), displayName = "Localization", defaultDisplay = false), Icon("Assets/Editor/Icons/ProfilerUIDetails.EditorIcon.png")]
     public class LocalizationOverlay : Overlay
     {
         private IMGUIContainer _container;

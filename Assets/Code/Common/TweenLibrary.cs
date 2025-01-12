@@ -17,14 +17,14 @@ namespace Echo.Common
         [SerializeField, LabelText("Rotate Punch Intensity"), MinValue(1.5f), FoldoutGroup("Button Click")]
         private float _buttonClickRotatePunchIntensity = 10f;
 
-        public void DoButtonClick(Button button)
+        public void DoButtonClick(VisualElement button)
         {
             DOTween.Sequence()
                 .Append(DOTween.Punch(
                     () => button.style.scale.value.value,
                     (scale) => button.style.scale = new StyleScale(scale),
                     Vector3.one * _buttonClickScalePunchIntensity,
-                    _buttonClickTweenDuration))
+                    _buttonClickTweenDuration).OnComplete(() => button.style.scale = new StyleScale(StyleKeyword.Null)))
                 .Join(DOTween.Punch(
                     () => Vector3.one * button.style.rotate.value.angle.value,
                     (rotate) => button.style.rotate = new Rotate(new Angle(rotate.x)),

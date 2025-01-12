@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 28491983}
   - component: {fileID: 28491984}
   m_Layer: 0
-  m_Name: FadeOutSplashScreen
+  m_Name: Fade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -321,6 +321,52 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &592342627
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 592342628}
+  - component: {fileID: 592342629}
+  m_Layer: 0
+  m_Name: LoadingTransition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &592342628
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592342627}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 621343010}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &592342629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592342627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd1e32bd815ce2b40a4ca715280901b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _begin: {fileID: 1691831249}
+  _end: {fileID: 820957720}
 --- !u!1 &621343009
 GameObject:
   m_ObjectHideFlags: 0
@@ -350,8 +396,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 820957719}
+  - {fileID: 592342628}
   - {fileID: 1691831248}
+  - {fileID: 820957719}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &715805590
@@ -383,8 +430,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e32bfec4d6fb6b40a2c0e4dcd092f2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _splashScreenBehaviour: {fileID: 820957720}
-  _quitBehaviour: {fileID: 1691831249}
+  _splashScreenTransition: {fileID: 820957720}
+  _quitTransition: {fileID: 1691831249}
+  _genericLoadingTransition: {fileID: 592342629}
   _homeSceneRef:
     m_AssetGUID: 295699630226a074a98559824e0790f4
     m_SubObjectName: 
@@ -430,7 +478,7 @@ GameObject:
   - component: {fileID: 820957719}
   - component: {fileID: 820957720}
   m_Layer: 0
-  m_Name: HideSplashScreen
+  m_Name: FadeOutBlackScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -481,7 +529,7 @@ GameObject:
   - component: {fileID: 1347379670}
   - component: {fileID: 1347379671}
   m_Layer: 0
-  m_Name: TurnOnRaycasts
+  m_Name: BlockEvents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -540,7 +588,7 @@ GameObject:
   - component: {fileID: 1445557856}
   - component: {fileID: 1445557857}
   m_Layer: 0
-  m_Name: TurnOffRaycasts
+  m_Name: UnblockEvents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -599,7 +647,7 @@ GameObject:
   - component: {fileID: 1509774781}
   - component: {fileID: 1509774782}
   m_Layer: 0
-  m_Name: FadeInSplashScreen
+  m_Name: Fade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -666,7 +714,7 @@ GameObject:
   - component: {fileID: 1661698269}
   - component: {fileID: 1661698267}
   m_Layer: 5
-  m_Name: SplashScreen
+  m_Name: BlackScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -752,7 +800,7 @@ GameObject:
   - component: {fileID: 1691831248}
   - component: {fileID: 1691831249}
   m_Layer: 0
-  m_Name: ShowSplashScreen
+  m_Name: FadeInBlackScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

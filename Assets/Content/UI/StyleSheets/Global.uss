@@ -23,12 +23,27 @@
     -unity-slice-scale: 1.25px;
 }
 
+.button:active {
+    scale: 0.95 0.95;
+    transition-property: scale;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+}
+
 .button.red {
     background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Red.Png?fileID=2800000&guid=681db73f19fb24efe843aad713eccb43&type=3#Button01_145_Red");
 }
 
-.unity-button:hover {
+.button:active.red:active {
     background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Red_Outlined.Png?fileID=2800000&guid=899772fb53e7971488842ff67bf846a1&type=3#Button01_145_Red_Outlined");
+}
+
+.button.yellow {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Yellow.Png?fileID=2800000&guid=804461bef59b141dba258fc997c8ca15&type=3#Button01_145_Yellow");
+}
+
+.button:active.yellow:active {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Yellow_Outlined.Png?fileID=2800000&guid=26bdfa1601699d84c8cb6b8cefade42b&type=3#Button01_145_Yellow_Outlined");
 }
 
 .icon {

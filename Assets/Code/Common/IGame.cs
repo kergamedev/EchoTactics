@@ -10,8 +10,8 @@ namespace Echo.Common
         IPlayerAccount PlayerAccount { get; }
         ISaveSystem SaveSystem { get; }
 
-        void GoToHome();
-        void GoToMatch();
+        Task GoToHomeAsync(bool withTransition = true);
+        Task GoToMatchAsync();
         Task ChangeLocaleAsync(Locale locale);
         void Quit();
     }
