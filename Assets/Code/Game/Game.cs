@@ -2,9 +2,14 @@ using Echo.Common;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Unity.Multiplayer.Playmode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
+using Unity.Services.Matchmaker;
+using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Localization;
@@ -12,6 +17,8 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+
+using Player = Unity.Services.Matchmaker.Models.Player;
 
 namespace Echo.Game
 {
@@ -67,6 +74,8 @@ namespace Echo.Game
         public TweenLibrary TweenLibrary => _tweenLibrary;
         public IPlayerAccount PlayerAccount => _playerAccount;
         public ISaveSystem SaveSystem => _saveSystem;
+        public bool IsMatchmakingOngoing { get; private set; }
+        public MultiplayAssignment MatchmakingAssignment { get; set; }
 
         private async void OnEnable()
         {
@@ -84,10 +93,17 @@ namespace Echo.Game
            
             try
             {
-                await InitializeLocalizationAsync();
-                await InitializeServicesAsync();
-                await SignInAsync();
-                await InitializeSaveAsync();
+                if (Utilities.IsServer())
+                {
+                    await InitializeServicesAsync();
+                }
+                else
+                {
+                    await InitializeLocalizationAsync();
+                    await InitializeServicesAsync();
+                    await SignInAsync();
+                    await InitializeSaveAsync();
+                }              
             }
             catch (Exception exception)
             {
@@ -98,7 +114,9 @@ namespace Echo.Game
                 return;
             }
 
-            await GoToHomeAsync(withTransition: false);
+            if (Utilities.IsServer())
+                await GoToMatchAsync(withTransitions: false);
+            else await GoToHomeAsync(withTransition: false);
         }
 
         private async Task InitializeLocalizationAsync()
@@ -312,9 +330,27 @@ namespace Echo.Game
 
         #region Load Match
 
-        public async Task GoToMatchAsync()
+        public async Task GoToMatchAsync(bool withTransitions = true)
         {
-            await _genericLoadingTransition.StartAsTask();
+            MatchmakingAssignment = null;
+
+            if (!Utilities.IsServer())
+            {
+                #if UNITY_EDITOR
+
+                if (CurrentPlayer.ReadOnlyTags().Any(tag => tag == "Matchmake"))
+                    await FindMatchAsync();
+                else Debug.Log("[MATCHMAKING] Going into local match");
+
+                #else
+                
+                await FindMatchAsync();
+                
+                #endif
+            }
+
+            if (withTransitions)
+                await _genericLoadingTransition.StartAsTask();
 
             if (_homeScene.IsLoaded())
                 await UnloadHome();
@@ -323,7 +359,66 @@ namespace Echo.Game
             await operation.Task;
 
             _matchScene = operation.Result;
-            await _genericLoadingTransition.EndAsTask();
+            
+            if (withTransitions)
+                await _genericLoadingTransition.EndAsTask();
+        }
+
+        private async Task FindMatchAsync()
+        {
+            Debug.Log("[MATCHMAKING] Finding a match via matchmaking...");
+            var playersInTicket = new List<Player>
+            {
+                new (AuthenticationService.Instance.PlayerId, new Dictionary<string, object>())
+            };
+            var ticketOptions = new CreateTicketOptions("Default", new Dictionary<string, object>());
+
+            IsMatchmakingOngoing = true;
+            while (!await FindMatch(playersInTicket, ticketOptions))
+                await Awaitable.WaitForSecondsAsync(1.5f);
+
+            IsMatchmakingOngoing = false;
+        }
+        private async Task<bool> FindMatch(List<Player> playersInTicket, CreateTicketOptions ticketOptions)
+        {
+            try
+            {
+                var ticketResponse = await MatchmakerService.Instance.CreateTicketAsync(playersInTicket, ticketOptions);
+                while (true)
+                {
+                    var ticketStatus = await MatchmakerService.Instance.GetTicketAsync(ticketResponse.Id);
+                    if (ticketStatus?.Value is not MultiplayAssignment assignment)
+                        continue;
+
+                    Debug.Log($"[MATCHMAKING] Status update: '{assignment.Status}'");
+                    switch (assignment.Status)
+                    {
+                        case MultiplayAssignment.StatusOptions.Found:
+                            if (!assignment.Port.HasValue)
+                            {
+                                Debug.LogError("[MATCHMAKING] No port was provided in the response");
+                                return false;
+                            }
+
+                            Debug.Log("[MATCHMAKING] Found match");
+                            MatchmakingAssignment = assignment;
+                            return true;
+
+                        case MultiplayAssignment.StatusOptions.Timeout:
+                        case MultiplayAssignment.StatusOptions.Failed:
+                            Debug.LogError($"[MATCHMAKING] Failed with 'Reason={assignment}'");
+                            return false;
+                    }
+
+                    await Awaitable.WaitForSecondsAsync(1.5f);
+                }
+            }
+            catch(Exception exception)
+            {
+                Debug.LogError($"[MATCHMAKING] Encountered an issue...");
+                Debug.LogException(exception);
+                return false;
+            }
         }
 
         private async Task UnloadMatch()
@@ -337,7 +432,7 @@ namespace Echo.Game
             _matchScene = null;
         }
 
-        #endregion
+#endregion
 
         public async Task ChangeLocaleAsync(Locale locale)
         {
@@ -356,15 +451,15 @@ namespace Echo.Game
         {
             yield return _quitTransition.RunAsync();
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
             UnityEditor.EditorApplication.ExitPlaymode();
             
-            #else
+#else
 
             Application.Quit();
 
-            #endif
+#endif
         }
 
         private void OnDisable()

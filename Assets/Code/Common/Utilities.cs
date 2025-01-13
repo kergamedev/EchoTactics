@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
+using Unity.Multiplayer;
+using Unity.Multiplayer.Playmode;
 
 namespace Echo.Common
 {
@@ -12,6 +15,15 @@ namespace Echo.Common
         {
             var task = method();
             yield return task.WaitForCompletionAsync();
+        }
+
+        #endregion
+
+        #region Network
+
+        public static bool IsServer()
+        {
+            return MultiplayerRolesManager.ActiveMultiplayerRoleMask == MultiplayerRoleFlags.Server;
         }
 
         #endregion

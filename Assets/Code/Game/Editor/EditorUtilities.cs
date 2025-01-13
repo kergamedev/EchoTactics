@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using Unity.Multiplayer.Playmode;
 using UnityEditor;
+using UnityEngine;
 
 namespace Echo.Game.Editor
 {
@@ -17,7 +18,7 @@ namespace Echo.Game.Editor
 
         public static bool IsMainEditorPlayer()
         {
-            return !CurrentPlayer.ReadOnlyTags().Any(tag => tag.Contains("PlayerSuffix"));
+            return !Application.dataPath.Contains("/VP/");
         }
 
         public static EditorSignInMethod GetSignInMethod()
@@ -38,7 +39,7 @@ namespace Echo.Game.Editor
                 username = username.Split('@')[0];
 
             if (!IsMainEditorPlayer())
-                username += $"-{GetAuxiliaryPlayerSuffix()}";
+                username += $"-Dup";
 
             return username;
         }
@@ -57,7 +58,7 @@ namespace Echo.Game.Editor
 
         public static string GeneratePassword()
         {
-            var random = new Random(DateTime.Now.ToString().GetHashCode());
+            var random = new System.Random(DateTime.Now.ToString().GetHashCode());
             var password = string.Empty;
             for (var i = 0; i < 8; i++)
                 password += PASSWORD_CHARS[random.Next(PASSWORD_CHARS.Length)];
@@ -77,21 +78,10 @@ namespace Echo.Game.Editor
             else playerName = EditorPrefs.GetString(ACCOUNT_PLAYER_NAME_KEY);
 
             if (!IsMainEditorPlayer())
-                playerName += $".{GetAuxiliaryPlayerSuffix()}";
+                playerName += $".Dup";
 
             return playerName;
         }
-
-        #region Utility
-
-        private static string GetAuxiliaryPlayerSuffix()
-        {
-            var multiplayerTags = CurrentPlayer.ReadOnlyTags();
-            var suffixTag = multiplayerTags.First(tag => tag.Contains("PlayerSuffix"));
-            return suffixTag.Split('.')[1];
-        }
-
-        #endregion
     }
 }
 

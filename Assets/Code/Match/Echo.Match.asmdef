@@ -2,7 +2,12 @@
     "name": "Echo.Match",
     "rootNamespace": "Echo.Match",
     "references": [
-        "GUID:eea4d8150a701144ead3728d65c8b500"
+        "GUID:eea4d8150a701144ead3728d65c8b500",
+        "GUID:1491147abca9d7d4bb7105af628b223e",
+        "GUID:37e17ffe38d86ae48bc3207e83ffef88",
+        "GUID:b8d1e01bea0acc94e964171bd3451e8c",
+        "GUID:002a64de5e696004980f613d694e33b0",
+        "GUID:f2d49d9fa7e7eb3418e39723a7d3b92f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

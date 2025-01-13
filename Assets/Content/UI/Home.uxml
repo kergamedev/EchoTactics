@@ -11,6 +11,9 @@
                         <UnityEngine.Localization.LocalizedString property="text" table="GUID:7f007c9e12eb3f347a5f2279cea31bbe" entry="Id(42336858112)" />
                     </Bindings>
                 </engine:Label>
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="CanMatchmake" data-source-type="Echo.Home.HomeModel, Echo.Home" binding-mode="ToTarget" />
+                </Bindings>
             </engine:VisualElement>
         </engine:VisualElement>
     </engine:VisualElement>
