@@ -1,6 +1,5 @@
+using System.Threading;
 using System.Threading.Tasks;
-using Unity.Services.Matchmaker.Models;
-using UnityEngine;
 using UnityEngine.Localization;
 
 namespace Echo.Common
@@ -10,12 +9,15 @@ namespace Echo.Common
         TweenLibrary TweenLibrary { get; }
         IPlayerAccount PlayerAccount { get; }
         ISaveSystem SaveSystem { get; }
-        bool IsMatchmakingOngoing { get; }
-        MultiplayAssignment MatchmakingAssignment { get; set; }
 
         Task GoToHomeAsync(bool withTransition = true);
-        Task GoToMatchAsync(bool withTransition = true);
+
+        Task<IMatchStartArgs> TrySetupOnlineMatchAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task StartSoloMatchAsync(bool withTransitions = true);
+        Task StartMatchAsync(IMatchStartArgs args, bool withTransitions = true);
+
         Task ChangeLocaleAsync(Locale locale);
+
         void Quit();
     }
 }

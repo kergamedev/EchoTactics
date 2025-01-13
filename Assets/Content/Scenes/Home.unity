@@ -231,6 +231,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72abe60e5ac678a4888023bbec889a6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playOnlineText:
+    m_TableReference:
+      m_TableCollectionName: GUID:7f007c9e12eb3f347a5f2279cea31bbe
+    m_TableEntryReference:
+      m_KeyId: 42336858112
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _cancelText:
+    m_TableReference:
+      m_TableCollectionName: GUID:7f007c9e12eb3f347a5f2279cea31bbe
+    m_TableEntryReference:
+      m_KeyId: 651273426251776
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  MatchmakingSearchText:
+    m_TableReference:
+      m_TableCollectionName: GUID:7f007c9e12eb3f347a5f2279cea31bbe
+    m_TableEntryReference:
+      m_KeyId: 645691646488576
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables:
+    - name: elapsed
+      variable:
+        rid: 6105542195959300471
+  references:
+    version: 2
+    RefIds:
+    - rid: 6105542195959300471
+      type: {class: FloatVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0
 --- !u!1001 &1786322586
 PrefabInstance:
   m_ObjectHideFlags: 0

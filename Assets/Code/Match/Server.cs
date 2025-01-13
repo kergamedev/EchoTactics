@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Echo.Common;
+using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Services.Multiplayer;
 using UnityEngine;
 
 #if DEDICATED_SERVER
@@ -12,9 +15,9 @@ using Unity.Services.Multiplay;
 
 namespace Echo.Match
 {
-    public class Server : IDisposable
-    {       
-        private NetworkManager _networkManager;
+    public class Server
+    {
+        private readonly Match _match;
 
         #if DEDICATED_SERVER
 
@@ -24,19 +27,27 @@ namespace Echo.Match
 
         #endif
 
-        public Server(NetworkManager networkManager)
+        public NetworkManager NetworkManager => _match.NetworkManager;
+
+        public Server(Match match)
         {
-            _networkManager = networkManager;
+            _match = match;
+
+            NetworkManager.ConnectionApprovalCallback += ApproveClientConnection;
+            NetworkManager.OnClientConnectedCallback += OnClientConnection;
+            NetworkManager.OnClientDisconnectCallback += OnClientDisconnection;
 
             #if !UNITY_EDITOR
 
             Camera.main.enabled = false;         
-            _networkManager.OnClientConnectedCallback += OnClientConnection;
 
             #endif
         }
 
-        public async Task InitializeAsync()
+        #pragma warning disable CS1998
+
+        public async Task InitializeAsync(bool autoStart = true)
+
         {
             #if DEDICATED_SERVER
 
@@ -52,12 +63,10 @@ namespace Echo.Match
             if (config.AllocationId != "")
                 OnAllocation(new MultiplayAllocation("", config.ServerId, config.AllocationId));
 
-            #else
-
-            _networkManager.StartServer();
-
             #endif
         }
+
+        #pragma warning restore CS1998
 
         public void Update()
         {
@@ -65,12 +74,56 @@ namespace Echo.Match
 
             if (_queryHandler != null)
             {
-                if (_networkManager.IsServer)
-                    _queryHandler.CurrentPlayers = (ushort)_networkManager.ConnectedClients.Count;
+                if (NetworkManager.IsServer)
+                    _queryHandler.CurrentPlayers = (ushort)NetworkManager.ConnectedClients.Count;
                 _queryHandler.UpdateServerCheck();
             }
 
             #endif
+        }
+
+        private void ApproveClientConnection(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
+        {
+            response.Approved = true;
+            response.CreatePlayerObject = true;
+
+            if (NetworkManager.ConnectedClients.Count >= 2)
+            {
+                response.Approved = false;
+                response.Reason = "Max player count reached";
+            }
+        }
+
+        private void OnClientConnection(ulong clientId)
+        {
+            Debug.Log($"[SERVER] 'Client={clientId}' has joined the match");
+
+            if (NetworkManager.ConnectedClients.Count >= 2)
+            {
+                #if DEDICATED_SERVER
+        
+                MultiplayService.Instance.UnreadyServerAsync();
+                
+                #endif
+
+                NetworkManager.Spawn(_match.Prefabs.GameState);
+            }
+        }
+
+        private void OnClientDisconnection(ulong clientId)
+        {
+            Debug.Log($"[SERVER] 'Client={clientId}' has left the match");
+
+            if (NetworkManager.ConnectedClients.Count == 0)
+            {
+                #if DEDICATED_SERVER
+        
+                MultiplayService.Instance.ReadyServerForPlayersAsync();
+                
+                #endif
+
+                _match.Shutdown();
+            }
         }
 
         #if DEDICATED_SERVER
@@ -86,21 +139,13 @@ namespace Echo.Match
             var config = MultiplayService.Instance.ServerConfig;
             Debug.Log($"[SERVER] Server has been allocated. 'ServerId={config.ServerId}', 'AllocationId={config.AllocationId}', 'Port={config.Port}', 'QueryPort={config.QueryPort}', 'LogDirectory={config.ServerLogDirectory}'");
 
-            var transport = _networkManager.GetComponent<UnityTransport>();
+            var transport = NetworkManager.GetComponent<UnityTransport>();
             transport.SetConnectionData("0.0.0.0", config.Port, "0.0.0.0");
 
             _isAllocated = true;
             
-            _networkManager.StartServer();
+            NetworkManager.StartServer();
             MultiplayService.Instance.ReadyServerForPlayersAsync();
-        }
-
-        private void OnClientConnection(ulong clientId)
-        {
-            Debug.Log($"[SERVER] A client has joined the match");
-
-            if (_networkManager.ConnectedClients.Count >= 2)
-                MultiplayService.Instance.UnreadyServerAsync();
         }
 
         private void OnSubscriptionStateChanged(MultiplayServerSubscriptionState state)
@@ -121,8 +166,8 @@ namespace Echo.Match
 
         public void Dispose()
         {
-            _networkManager.OnClientConnectedCallback -= OnClientConnection;
-            _networkManager = null;
+            NetworkManager.OnClientConnectedCallback -= OnClientConnection;
+            NetworkManager = null;
 
             _callbacks.Allocate -= OnAllocation;
             _callbacks.SubscriptionStateChanged -= OnSubscriptionStateChanged;

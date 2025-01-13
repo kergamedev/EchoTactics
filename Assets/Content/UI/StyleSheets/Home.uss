@@ -1,0 +1,15 @@
+#MatchmakingSearchText {
+    visibility: hidden;
+}
+
+.matchmaking-ongoing #PlayOnline {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Button/Button01_145_Red.Png?fileID=2800000&guid=681db73f19fb24efe843aad713eccb43&type=3#Button01_145_Red");
+}
+
+.matchmaking-ongoing #PlayOnline #Icon {
+    display: none;
+}
+
+.matchmaking-ongoing #MatchmakingSearchText {
+    visibility: visible;
+}

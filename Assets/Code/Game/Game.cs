@@ -1,9 +1,11 @@
 using Echo.Common;
+using Echo.Match;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
 using Unity.Services.Authentication;
@@ -74,8 +76,6 @@ namespace Echo.Game
         public TweenLibrary TweenLibrary => _tweenLibrary;
         public IPlayerAccount PlayerAccount => _playerAccount;
         public ISaveSystem SaveSystem => _saveSystem;
-        public bool IsMatchmakingOngoing { get; private set; }
-        public MultiplayAssignment MatchmakingAssignment { get; set; }
 
         private async void OnEnable()
         {
@@ -115,7 +115,7 @@ namespace Echo.Game
             }
 
             if (Utilities.IsServer())
-                await GoToMatchAsync(withTransitions: false);
+                await StartOnlineMatchAsync(withTransitions: false);
             else await GoToHomeAsync(withTransition: false);
         }
 
@@ -123,7 +123,7 @@ namespace Echo.Game
         {
             Debug.Log($"[LOCALIZATION] Waiting for localization initialization...");
             await LocalizationSettings.InitializationOperation.Task;
-            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef.GetLocalizedString());
+            ConverterGroups.RegisterGlobalConverter((ref LocalizedString stringRef) => stringRef == null ? string.Empty : stringRef.GetLocalizedString());
         }
 
         private async Task InitializeServicesAsync()
@@ -304,7 +304,7 @@ namespace Echo.Game
                 await _genericLoadingTransition.StartAsTask();
 
             if (_matchScene.IsLoaded())
-                await UnloadMatch();
+                await UnloadMatchAsync();
 
             var operation = Addressables.LoadSceneAsync(_homeSceneRef, LoadSceneMode.Additive);
             await operation.Task;
@@ -330,41 +330,38 @@ namespace Echo.Game
 
         #region Load Match
 
-        public async Task GoToMatchAsync(bool withTransitions = true)
+        public async Task<IMatchStartArgs> TrySetupOnlineMatchAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            MatchmakingAssignment = null;
+            var startHandler = default(IStartMachHandler);
 
-            if (!Utilities.IsServer())
+            if (Utilities.IsServer())
+                startHandler = new CreateMatchAsServer();
+            else
             {
                 #if UNITY_EDITOR
 
-                if (CurrentPlayer.ReadOnlyTags().Any(tag => tag == "Matchmake"))
-                    await FindMatchAsync();
-                else Debug.Log("[MATCHMAKING] Going into local match");
+                //!CurrentPlayer.ReadOnlyTags().Any(tag => tag == "Matchmake")
+                if (!CurrentPlayer.ReadOnlyTags().Any(tag => tag == "Matchmake"))
+                    startHandler = new JoinMatchAsLocalClient();
 
-                #else
-                
-                await FindMatchAsync();
-                
                 #endif
+
+                if (startHandler == null)
+                    startHandler = await FindMatchAsync(cancellationToken);
             }
 
-            if (withTransitions)
-                await _genericLoadingTransition.StartAsTask();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            if (_homeScene.IsLoaded())
-                await UnloadHome();
+            if (startHandler == null)
+            {
+                Debug.LogError("[MATCH] Failed to define how the match should be started");
+                return null;
+            }
 
-            var operation = Addressables.LoadSceneAsync(_matchSceneRef, LoadSceneMode.Additive);
-            await operation.Task;
-
-            _matchScene = operation.Result;
-            
-            if (withTransitions)
-                await _genericLoadingTransition.EndAsTask();
+            return new MatchStartArgs(startHandler);
         }
 
-        private async Task FindMatchAsync()
+        private async Task<JoinMatchAsClient> FindMatchAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             Debug.Log("[MATCHMAKING] Finding a match via matchmaking...");
             var playersInTicket = new List<Player>
@@ -373,19 +370,28 @@ namespace Echo.Game
             };
             var ticketOptions = new CreateTicketOptions("Default", new Dictionary<string, object>());
 
-            IsMatchmakingOngoing = true;
-            while (!await FindMatch(playersInTicket, ticketOptions))
-                await Awaitable.WaitForSecondsAsync(1.5f);
+            var args = default(JoinMatchAsClient);
+            while (true)
+            {
+                args = await FindMatchAsync(playersInTicket, ticketOptions, cancellationToken);
+                if (args != null)
+                    break;
 
-            IsMatchmakingOngoing = false;
+                cancellationToken.ThrowIfCancellationRequested();
+                await Awaitable.WaitForSecondsAsync(1.5f, cancellationToken);
+            }
+
+            return args;
         }
-        private async Task<bool> FindMatch(List<Player> playersInTicket, CreateTicketOptions ticketOptions)
+        private async Task<JoinMatchAsClient> FindMatchAsync(List<Player> playersInTicket, CreateTicketOptions ticketOptions, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
                 var ticketResponse = await MatchmakerService.Instance.CreateTicketAsync(playersInTicket, ticketOptions);
                 while (true)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var ticketStatus = await MatchmakerService.Instance.GetTicketAsync(ticketResponse.Id);
                     if (ticketStatus?.Value is not MultiplayAssignment assignment)
                         continue;
@@ -397,31 +403,66 @@ namespace Echo.Game
                             if (!assignment.Port.HasValue)
                             {
                                 Debug.LogError("[MATCHMAKING] No port was provided in the response");
-                                return false;
+                                return null;
                             }
 
                             Debug.Log("[MATCHMAKING] Found match");
-                            MatchmakingAssignment = assignment;
-                            return true;
+                            return new JoinMatchAsClient(assignment);
 
                         case MultiplayAssignment.StatusOptions.Timeout:
                         case MultiplayAssignment.StatusOptions.Failed:
                             Debug.LogError($"[MATCHMAKING] Failed with 'Reason={assignment}'");
-                            return false;
+                            return null;
                     }
 
-                    await Awaitable.WaitForSecondsAsync(1.5f);
+                    await Awaitable.WaitForSecondsAsync(1.5f, cancellationToken);
                 }
             }
-            catch(Exception exception)
+            catch (OperationCanceledException cancellation)
+            {
+                throw cancellation;
+            }
+            catch (Exception exception)
             {
                 Debug.LogError($"[MATCHMAKING] Encountered an issue...");
                 Debug.LogException(exception);
-                return false;
+                return null;
             }
         }
 
-        private async Task UnloadMatch()
+        public async Task StartSoloMatchAsync(bool withTransitions = true)
+        {
+            await StartMatchAsync(new MatchStartArgs(new CreateMatchAsHost()), withTransitions);
+        }
+        public async Task StartOnlineMatchAsync(bool withTransitions = true)
+        {
+            var args = await TrySetupOnlineMatchAsync();
+            await StartMatchAsync(args, withTransitions);
+        }
+        public async Task StartMatchAsync(IMatchStartArgs abstractArgs, bool withTransitions = true)
+        {
+            if (abstractArgs is not MatchStartArgs concreteArgs)
+                throw new Exception($"[MATCH] No valid scenario for '{nameof(IMatchStartArgs)}' of 'Type={abstractArgs.GetType().Name}'");
+
+            if (withTransitions)
+                await _genericLoadingTransition.StartAsTask();
+
+            if (_homeScene.IsLoaded())
+                await UnloadHome();
+
+            var operation = Addressables.LoadSceneAsync(_matchSceneRef, LoadSceneMode.Additive);
+            await operation.Task;
+
+            _matchScene = operation.Result;
+
+            var context = _matchScene.Value.Scene.GetComponentInRoots<Match.Match>();
+            await context.InitializeAsync(concreteArgs.StartHandler);
+            
+            if (withTransitions)
+                await _genericLoadingTransition.EndAsTask();
+        }
+
+        private async Task UnloadMatchAsync()
         {
             if (!_matchScene.IsLoaded())
                 return;
@@ -432,7 +473,7 @@ namespace Echo.Game
             _matchScene = null;
         }
 
-#endregion
+        #endregion
 
         public async Task ChangeLocaleAsync(Locale locale)
         {
@@ -451,15 +492,15 @@ namespace Echo.Game
         {
             yield return _quitTransition.RunAsync();
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
             UnityEditor.EditorApplication.ExitPlaymode();
             
-#else
+            #else
 
             Application.Quit();
 
-#endif
+            #endif
         }
 
         private void OnDisable()

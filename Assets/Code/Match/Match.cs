@@ -1,8 +1,8 @@
 using Echo.Common;
 using Sirenix.OdinInspector;
 using System;
+using System.Threading.Tasks;
 using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 
 namespace Echo.Match
@@ -10,6 +10,19 @@ namespace Echo.Match
     public class Match : MonoBehaviour, IMatch
     {
         #region Nested types
+
+        [Serializable]
+        public class PrefabLibrary
+        {
+            [SerializeField]
+            private GameState _gameState;
+
+            [SerializeField]
+            private Bot _bot;
+
+            public GameState GameState => _gameState;
+            public Bot Bot => _bot;
+        }
 
         [Serializable]
         public class CharacterInfo
@@ -29,6 +42,9 @@ namespace Echo.Match
         [SerializeField]
         private NetworkManager _networkManager;
 
+        [SerializeField, HideLabel, InlineProperty, FoldoutGroup("Prefabs")]
+        private PrefabLibrary _prefabs;
+
         [SerializeField, LabelText("Player"), FoldoutGroup("Team Infos")]
         private CharacterInfo _playerInfo;
 
@@ -37,28 +53,31 @@ namespace Echo.Match
 
         private Server _server;
 
+        public PrefabLibrary Prefabs => _prefabs;
         public CharacterInfo PlayerInfo => _playerInfo;
         public CharacterInfo EnemyInfo => _enemyInfo;
+        public NetworkManager NetworkManager => _networkManager;
+        public GameState GameState { get; private set; }
 
-        private async void OnEnable()
+        public async Task InitializeAsync(IStartMachHandler startHandler)
         {
             Global.Match = this;
 
-            if (Utilities.IsServer())
-            {
-                _server = new Server(_networkManager);
-                await _server.InitializeAsync();
-            }
-            else
-            {
-                if (Global.Game.MatchmakingAssignment != null)
-                {
-                    var transport = _networkManager.GetComponent<UnityTransport>();
-                    var assignment = Global.Game.MatchmakingAssignment;
-                    transport.SetConnectionData(assignment.Ip, (ushort)assignment.Port);
-                }
-                _networkManager.StartClient();
-            }
+            if (startHandler == null)
+                throw new Exception($"[MATCH] No '{nameof(IStartMachHandler)}' was provided");
+
+            await startHandler.ExecuteAsync(this);
+        }
+
+        public async Task SetupServerAsync(Server server)
+        {
+            _server = server;
+            await _server.InitializeAsync();
+        }
+
+        public void ReadyUp(GameState gameState)
+        {
+            GameState = gameState;
         }
 
         private void Update()
@@ -67,11 +86,24 @@ namespace Echo.Match
                 _server.Update();
         }
 
+        public void Shutdown()
+        {
+            if (GameState == null)
+                return;
+
+            if (NetworkManager.IsListening && NetworkManager.SpawnManager != null)
+            {
+                GameState.NetworkObject.Despawn();
+                //...
+            }
+        }
+
         private void OnDisable()
         {
-            Global.Match = null;
-
             _server?.Dispose();
+            _server = null;
+
+            Global.Match = null;
         }
     }
 }

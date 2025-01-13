@@ -16,12 +16,32 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 7f007c9e12eb3f347a5f2279cea31bbe, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 6105542195959300334
   m_TableData:
   - m_Id: 42336858112
-    m_Localized: Fight
+    m_Localized: PvP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 645579671154688
+    m_Localized: VS Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 645691646488576
+    m_Localized: 'Searching for a match: {elapsed}s...'
+    m_Metadata:
+      m_Items:
+      - rid: 6105542195959300334
+  - m_Id: 651273426251776
+    m_Localized: Cancel
     m_Metadata:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6105542195959300334
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 645691646488576

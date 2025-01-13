@@ -288,7 +288,7 @@ MonoBehaviour:
       - {fileID: 11400000, guid: 150a15f65572f2748bfdfbc3c9d58bba, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
+    ConnectionApproval: 1
     ConnectionData: 
     EnableTimeResync: 0
     TimeResyncInterval: 30
@@ -1133,15 +1133,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _networkManager: {fileID: 493932930}
+  _prefabs:
+    _gameState: {fileID: 8825770200163773992, guid: e62e71ccdf739864aba2cd773683d4cb, type: 3}
+    _bot: {fileID: 2579738992100649029, guid: bc7becdf8204a6a4fa239fae1c0f6209, type: 3}
   _playerInfo:
     _material: {fileID: 2100000, guid: 702947aa49c3b774c8bb5d5dfd6602b2, type: 2}
     _spot: {fileID: 1188941008}
   _enemyInfo:
     _material: {fileID: 2100000, guid: affc89211c53e9848a8b8666100bbd36, type: 2}
     _spot: {fileID: 778434790}
-  _connectRemotely: 1
-  _ip: 20.33.110.65
-  _port: 9000
 --- !u!1001 &1023133357
 PrefabInstance:
   m_ObjectHideFlags: 0

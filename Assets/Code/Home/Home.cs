@@ -11,11 +11,6 @@ namespace Echo.Home
             Global.Home = this;
         }
 
-        public async Task GoToMatchAsync()
-        {
-            await Global.Game.GoToMatchAsync();
-        }
-
         private void OnDisable()
         {
             Global.Home = null;

@@ -1,20 +1,34 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <engine:Template name="HomeHeader" src="project://database/Assets/Content/UI/HomeHeader.uxml?fileID=9197481963319205126&amp;guid=c72061f8e9daf754ca93ab559ee75e62&amp;type=3#HomeHeader" />
     <Style src="project://database/Assets/Content/UI/StyleSheets/Global.uss?fileID=7433441132597879392&amp;guid=5d8cee8244bb05b4d9ed920c7ba5006e&amp;type=3#Global" />
+    <Style src="project://database/Assets/Content/UI/StyleSheets/Home.uss?fileID=7433441132597879392&amp;guid=88f19346dfcee79488271894244d7a99&amp;type=3#Home" />
     <engine:VisualElement name="Background" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Demo/Demo_Background/Background_07.png?fileID=2800000&amp;guid=5b56b238b11c749d2a26759261b7c1a6&amp;type=3#Background_07&quot;);">
         <engine:Instance template="HomeHeader" name="Header" />
         <engine:VisualElement name="Content" style="flex-grow: 1; justify-content: center; align-items: center;">
-            <engine:VisualElement name="Fight" class="button yellow" style="flex-grow: 0; flex-direction: row; padding-top: 20px; padding-right: 50px; padding-bottom: 40px; padding-left: 50px;">
-                <engine:VisualElement name="Icon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Icon_ItemIcons/Original/Icon_Battle.Png?fileID=2800000&amp;guid=e35fc472b6ada425894eef3b044e099f&amp;type=3#Icon_Battle&quot;); width: 147px; height: 100%; -unity-background-scale-mode: scale-to-fit; margin-right: 40px;" />
-                <engine:Label text="Fight" name="Text">
+            <engine:VisualElement name="PlaySolo" class="button with-icon green">
+                <engine:VisualElement name="Icon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Icon_ItemIcons/Original/Icon_Map.Png?fileID=2800000&amp;guid=9296fe55e06a24dc19a5c619952c9aad&amp;type=3#Icon_Map&quot;); width: 147px; height: 100%; -unity-background-scale-mode: scale-to-fit; margin-right: 40px;" />
+                <engine:Label text="VS Bot" name="Text">
                     <Bindings>
-                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:7f007c9e12eb3f347a5f2279cea31bbe" entry="Id(42336858112)" />
+                        <UnityEngine.Localization.LocalizedString property="text" table="GUID:7f007c9e12eb3f347a5f2279cea31bbe" entry="Id(645579671154688)" />
                     </Bindings>
                 </engine:Label>
                 <Bindings>
-                    <engine:DataBinding property="enabledSelf" data-source-path="CanMatchmake" data-source-type="Echo.Home.HomeModel, Echo.Home" binding-mode="ToTarget" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsMatchmakingOngoing" data-source-type="Echo.Home.HomeModel, Echo.Home" binding-mode="ToTarget" source-to-ui-converters="Invert" />
                 </Bindings>
             </engine:VisualElement>
+            <engine:VisualElement name="PlayOnline" class="button yellow with-icon" style="margin-top: 42px;">
+                <engine:VisualElement name="Icon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/Icon_ItemIcons/Original/Icon_Battle.Png?fileID=2800000&amp;guid=e35fc472b6ada425894eef3b044e099f&amp;type=3#Icon_Battle&quot;); width: 147px; height: 100%; -unity-background-scale-mode: scale-to-fit; margin-right: 40px;" />
+                <engine:Label text="PvP" name="Text">
+                    <Bindings>
+                        <engine:DataBinding property="text" data-source-path="PlayOnlineButtonText" data-source-type="Echo.Home.HomeModel, Echo.Home" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:Label>
+            </engine:VisualElement>
+            <engine:Label text="Searching for Xs..." name="MatchmakingSearchText" class="text" style="font-size: 56px; margin-top: -4px;">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="MatchmakingSearchText" data-source-type="Echo.Home.HomeModel, Echo.Home" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

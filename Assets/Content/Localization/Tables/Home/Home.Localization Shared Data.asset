@@ -15,8 +15,20 @@ MonoBehaviour:
   m_TableCollectionName: Home.Localization
   m_TableCollectionNameGuidString: 7f007c9e12eb3f347a5f2279cea31bbe
   m_Entries:
+  - m_Id: 645579671154688
+    m_Key: PLAY_SOLO
+    m_Metadata:
+      m_Items: []
   - m_Id: 42336858112
-    m_Key: BUTTON_FIGHT
+    m_Key: PLAY_ONLINE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 645691646488576
+    m_Key: MATCHMAKING_SEARCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 651273426251776
+    m_Key: MATCHMAKING_CANCEL
     m_Metadata:
       m_Items: []
   m_Metadata:

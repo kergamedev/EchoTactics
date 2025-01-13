@@ -15,10 +15,10 @@ namespace Echo.Match
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer)
+            if (IsServer && !IsHost)
                 return;
 
-            var info = IsOwner ? Match.PlayerInfo : Match.EnemyInfo;
+            var info = IsOwner && GetComponent<Bot>() == null ? Match.PlayerInfo : Match.EnemyInfo;
 
             Character = Instantiate(_characterPrefab);
             Character.Initialize(info);

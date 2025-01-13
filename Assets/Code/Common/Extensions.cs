@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+
+using Object = UnityEngine.Object;
 
 namespace Echo.Common
 {
@@ -102,6 +105,19 @@ namespace Echo.Common
         public static bool IsNullOrEmpty(this string value)
         {
             return value == null || value == string.Empty;
+        }
+
+        #endregion
+
+        #region Network
+
+        public static TComponent Spawn<TComponent>(this NetworkManager networkManager, TComponent prefab) where TComponent : NetworkBehaviour
+        {
+            var instanceObject = Object.Instantiate(networkManager.GetNetworkPrefabOverride(prefab.gameObject));
+            var instanceNetworkObject = instanceObject.GetComponent<NetworkObject>();
+            instanceNetworkObject.Spawn();
+
+            return instanceObject.GetComponent<TComponent>();
         }
 
         #endregion
