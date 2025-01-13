@@ -167,7 +167,6 @@ namespace Echo.Match
         public void Dispose()
         {
             NetworkManager.OnClientConnectedCallback -= OnClientConnection;
-            NetworkManager = null;
 
             _callbacks.Allocate -= OnAllocation;
             _callbacks.SubscriptionStateChanged -= OnSubscriptionStateChanged;
