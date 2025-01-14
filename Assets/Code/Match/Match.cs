@@ -67,6 +67,12 @@ namespace Echo.Match
                 throw new Exception($"[MATCH] No '{nameof(IStartMachHandler)}' was provided");
 
             await startHandler.ExecuteAsync(this);
+
+            if (Global.Game.PlayerAccount.IsAdmin)
+            {
+                if (NetworkManager.IsClient)
+                    Global.Console.AddCommand(gameObject.scene, "win", (_) => GameState.DeclareWinnerRpc(NetworkManager.LocalClientId));
+            }
         }
 
         public async Task SetupServerAsync(Server server)
@@ -78,6 +84,10 @@ namespace Echo.Match
         public void ReadyUp(GameState gameState)
         {
             GameState = gameState;
+
+            var listeners = gameObject.scene.GetComponentsInRoots<IOnMatchReady>();
+            foreach (var listener in listeners)
+                listener.OnMatchReady();
         }
 
         private void Update()
@@ -86,16 +96,10 @@ namespace Echo.Match
                 _server.Update();
         }
 
-        public void Shutdown()
+        public void GoBackToHome()
         {
-            if (GameState == null)
-                return;
-
-            if (NetworkManager.IsListening && NetworkManager.SpawnManager != null)
-            {
-                GameState.NetworkObject.Despawn();
-                //...
-            }
+            Destroy(NetworkManager.gameObject);
+            Global.Game.GoToHomeAsync();
         }
 
         private void OnDisable()

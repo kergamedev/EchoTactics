@@ -2,7 +2,9 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Multiplayer.Playmode;
+using Unity.Services.Authentication;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,6 +32,37 @@ namespace Echo.Game.Editor
                 return EditorSignInMethod.Anonymous;
 
             return (EditorSignInMethod)EditorPrefs.GetInt(SIGN_IN_METHOD_PREF_KEY);
+        }
+
+        public static async Task SignWithUnityAccount(bool withLogs = true)
+        {
+            var username = GetUnityAccountUsername();
+            var password = GetUnityAccountPassword();
+
+            try
+            {
+                if (withLogs)
+                    Debug.Log($"[SIGN-IN] Trying to sign-in 'Username={username} and 'Password={password}'");
+
+                await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
+            }
+            catch
+            {
+                if (withLogs)
+                    Debug.LogWarning($"[SIGN-IN] Failed to sign-in with 'Username={username} and 'Password={password}'. Trying sign-up");
+
+                try
+                {
+                    await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+                }
+                catch (Exception exception)
+                {
+                    if (withLogs)
+                        Debug.LogError($"[SIGN-IN] Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
+
+                    throw exception;
+                }
+            }
         }
 
         public static string GetUnityAccountUsername()

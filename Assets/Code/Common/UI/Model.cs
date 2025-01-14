@@ -3,7 +3,6 @@ using UnityEngine.UIElements;
 
 namespace Echo.Common
 {
-    [RequireComponent(typeof(UIDocument))]
     public abstract class Model : MonoBehaviour
     {
         private UIDocument _view;
@@ -14,7 +13,13 @@ namespace Echo.Common
 
         protected virtual void Awake()
         {
-            _view = GetComponent<UIDocument>();
+            var view = GetComponent<UIDocument>();
+            Initialize(view);
+        }
+
+        protected void Initialize(UIDocument view)
+        {
+            _view = view;
             _view.rootVisualElement.dataSource = this;
         }
     }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Sirenix.Utilities;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
@@ -98,6 +100,15 @@ namespace Echo.Common
             return null;
         }
 
+        public static TComponent[] GetComponentsInRoots<TComponent>(this Scene scene) where TComponent : class
+        {
+            var components = new List<TComponent>();
+            foreach (var root in scene.GetRootGameObjects())
+                components.AddRange(root.GetComponentsInChildren<TComponent>());
+
+            return components.ToArray();
+        }
+
         #endregion
 
         #region String
@@ -134,6 +145,16 @@ namespace Echo.Common
                 case DeltaTimeKind.FixedUnscaled: return Time.fixedUnscaledDeltaTime;
                 default: throw new Exception($"No case defined for '{nameof(DeltaTimeKind)}={kind}'");
             }
+        }
+
+        #endregion
+
+        #region Rect
+
+        public static Rect Pad(this Rect rect, float padding)
+        {
+            var twice = padding * 2f;
+            return new Rect(rect.x + padding, rect.y + padding, rect.width - twice, rect.height - twice);
         }
 
         #endregion

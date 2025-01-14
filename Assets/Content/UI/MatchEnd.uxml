@@ -1,0 +1,24 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Content/UI/StyleSheets/Global.uss?fileID=7433441132597879392&amp;guid=5d8cee8244bb05b4d9ed920c7ba5006e&amp;type=3#Global" />
+    <Style src="project://database/Assets/Content/UI/StyleSheets/MatchEnd.uss?fileID=7433441132597879392&amp;guid=4a53971136eb1e3458c594d63d254bd6&amp;type=3#MatchEnd" />
+    <engine:VisualElement name="Frame" style="flex-grow: 1; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.29);">
+        <engine:VisualElement name="Fade" style="flex-grow: 1; position: absolute; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Demo/Demo_Image/Glow_Cirlce.png?fileID=2800000&amp;guid=9d8a0994a17344b798b6a3656296b498&amp;type=3#Glow_Cirlce&quot;); width: 3000px; height: 3000px; -unity-background-image-tint-color: rgba(0, 0, 0, 0.41);" />
+        <engine:VisualElement name="Glow" style="flex-grow: 0; width: 1250px; height: 1250px; position: absolute;" />
+        <engine:VisualElement name="Content" style="flex-grow: 0; flex-direction: row; align-items: center; top: 68px;">
+            <engine:VisualElement name="Icon" style="flex-grow: 0; width: 250px; height: 250px; margin-right: 14px;" />
+            <engine:Label text="END..." name="Text" class="text title" style="margin-left: 14px;">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="Text" data-source-type="Echo.Match.EndMatchModel, Echo.Match" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
+        </engine:VisualElement>
+        <engine:VisualElement name="GoBackToHome" class="button with-icon green" style="top: 65px;">
+            <engine:VisualElement name="Icon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Packs/LayerLab/Sprites/Components/IconMisc/Icon_MenuIcon02_Shop.Png?fileID=2800000&amp;guid=58dd4e92dd1e2427bb5d418a3e58d159&amp;type=3#Icon_MenuIcon02_Shop&quot;); width: 147px; height: 100%; -unity-background-scale-mode: scale-to-fit; margin-right: 40px;" />
+            <engine:Label text="PvP" name="Text">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:e6d2fe2692cd10c45a626466ba19babf" entry="Id(24569786368)" />
+                </Bindings>
+            </engine:Label>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

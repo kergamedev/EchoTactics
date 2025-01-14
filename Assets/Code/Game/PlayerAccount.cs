@@ -1,5 +1,6 @@
 ﻿using Echo.Common;
 using System;
+using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using UnityEngine;
 
@@ -42,6 +43,8 @@ namespace Echo.Game
             "Hamster"
         };
 
+        public bool IsAdmin { get; private set; }
+
         public static string GeneratePlayerName()
         {
             var random = new Random(DateTime.Now.ToString().GetHashCode());
@@ -56,6 +59,13 @@ namespace Echo.Game
         {
             AuthenticationService.Instance.SignedIn += OnPlayerSignedIn;
             AuthenticationService.Instance.SignedOut += OnPlayerSignedOut;
+        }
+
+        public async Task InitalizeDataAsync(ISaveSystem saveSystem)
+        {
+            IsAdmin = await saveSystem.LoadKeyValueAsync<bool>(SaveKeys.IS_ADMIN);
+            if (IsAdmin)
+                Debug.Log("[PLAYER-ACCOUNT] Current player is an admin");
         }
 
         private void OnPlayerSignedIn()

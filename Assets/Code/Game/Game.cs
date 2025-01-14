@@ -70,7 +70,7 @@ namespace Echo.Game
 
         private SceneInstance? _homeScene;
         private SceneInstance? _matchScene;
-        private PlayerAccount _playerAccount;
+        private IPlayerAccount _playerAccount;
         private CloudSaveSystem _saveSystem;
 
         public TweenLibrary TweenLibrary => _tweenLibrary;
@@ -96,6 +96,7 @@ namespace Echo.Game
                 if (Utilities.IsServer())
                 {
                     await InitializeServicesAsync();
+                    _playerAccount = new ServerAccount();
                 }
                 else
                 {
@@ -179,27 +180,7 @@ namespace Echo.Game
                     break;
 
                 case Editor.EditorSignInMethod.UnityAccount:
-                    var username = Editor.EditorUtilities.GetUnityAccountUsername();
-                    var password = Editor.EditorUtilities.GetUnityAccountPassword();
-
-                    try
-                    {
-                        Debug.Log($"[SIGN-IN] Trying to sign-in 'Username={username} and 'Password={password}'");
-                        await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
-                    }
-                    catch
-                    {
-                        Debug.LogWarning($"[SIGN-IN] Failed to sign-in with 'Username={username} and 'Password={password}'. Trying sign-up");
-                        try
-                        {
-                            await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
-                        }
-                        catch (Exception exception)
-                        {
-                            Debug.LogError($"[SIGN-IN] Failed to authenticate in editor with 'Username={username} and 'Password={password}'");
-                            throw exception;
-                        }                       
-                    }
+                    await Editor.EditorUtilities.SignWithUnityAccount();                    
                     break;
             }
 
@@ -265,7 +246,7 @@ namespace Echo.Game
             Debug.Log($"[SAVE] Initializing Save System...");
             _saveSystem = new CloudSaveSystem();
 
-            var savedLocaleCode = await SaveSystem.LoadKeyValue<string>(SaveKeys.SELECTED_LOCALE);
+            var savedLocaleCode = await SaveSystem.LoadKeyValueAsync<string>(SaveKeys.SELECTED_LOCALE);
             if (!savedLocaleCode.IsNullOrEmpty())
             {
                 var savedLocale = LocalizationSettings.AvailableLocales.GetLocale(new LocaleIdentifier(savedLocaleCode));
@@ -276,6 +257,12 @@ namespace Echo.Game
                     LocalizationSettings.SelectedLocale = savedLocale;
                     PlayerPrefs.SetString(SaveKeys.SELECTED_LOCALE, savedLocaleCode);
                 }
+            }
+
+            if (_playerAccount is PlayerAccount toFill)
+            {
+                Debug.Log($"[SAVE] Filling up player account details...");
+                await toFill.InitalizeDataAsync(_saveSystem);
             }
         }
 
@@ -480,7 +467,7 @@ namespace Echo.Game
             LocalizationSettings.SelectedLocale = locale;
             var localeCode = locale.Identifier.Code;
 
-            await _saveSystem.SaveKeyValue(SaveKeys.SELECTED_LOCALE, localeCode);
+            await _saveSystem.SaveKeyValueAsync(SaveKeys.SELECTED_LOCALE, localeCode);
             PlayerPrefs.SetString(SaveKeys.SELECTED_LOCALE, localeCode);
         }
 

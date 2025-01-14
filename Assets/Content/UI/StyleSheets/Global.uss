@@ -98,3 +98,10 @@
     -unity-text-outline-color: rgb(10, 5, 6);
     text-shadow: 0 0 0 rgb(10, 5, 6);
 }
+
+.text.title {
+    font-size: 225px;
+    -unity-text-align: middle-center;
+    -unity-text-outline-width: 5px;
+    text-shadow: 0 10px 2px rgb(0, 0, 0);
+}

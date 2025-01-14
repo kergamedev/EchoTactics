@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Match.Localization Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Match.Localization
+  m_TableCollectionNameGuidString: e6d2fe2692cd10c45a626466ba19babf
+  m_Entries:
+  - m_Id: 24569786368
+    m_Key: GO_HOME_BUTTON
+    m_Metadata:
+      m_Items: []
+  - m_Id: 95319306240
+    m_Key: MATCH_END_VICTORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 124994007040
+    m_Key: MATCH_END_DEFEAT
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 6105542220118753515
+  references:
+    version: 2
+    RefIds:
+    - rid: 6105542220118753515
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1736878958527

@@ -1,0 +1,25 @@
+.defeat #Glow {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Frame/CardFrame04_Glow.png?fileID=2800000&guid=8dd82610b19d342f1ad336bd4613efc6&type=3#CardFrame04_Glow");
+    -unity-background-image-tint-color: rgb(106, 66, 73);
+}
+
+.victory #Glow {
+    background-image: url("project://database/Assets/Packs/LayerLab/Particles/Texture/fx_rotate_line_small.png?fileID=2800000&guid=5c8f1d6936b5344509ed8a53218cf670&type=3#fx_rotate_line_small");
+    -unity-background-image-tint-color: rgb(220, 242, 255);
+}
+
+.victory #Content #Icon {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/Icon_ItemIcons/128/Icon_Trophy.png?fileID=2800000&guid=9eda7fdd65e344e1e95eac4d16ccf7da&type=3#Icon_Trophy");
+}
+
+.victory #Content #Text {
+    color: rgb(104, 190, 248);
+}
+
+.defeat #Content #Icon {
+    background-image: url("project://database/Assets/Packs/LayerLab/Sprites/Components/IconMisc/Icon_StatsIcon_Skeleton.Png?fileID=2800000&guid=d8ec7bed8b86f4a3d905859476e40a84&type=3#Icon_StatsIcon_Skeleton");
+}
+
+.defeat #Content #Text {
+    color: rgb(214, 79, 78);
+}

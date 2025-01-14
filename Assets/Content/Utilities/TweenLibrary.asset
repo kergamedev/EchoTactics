@@ -15,3 +15,7 @@ MonoBehaviour:
   _buttonClickTweenDuration: 0.15
   _buttonClickScalePunchIntensity: 0.15
   _buttonClickRotatePunchIntensity: 7.5
+  _appearDuration: 0.1
+  _appearEasing: 17
+  _appearBounceDuration: 0.08
+  _appearBounceIntensity: 0.125

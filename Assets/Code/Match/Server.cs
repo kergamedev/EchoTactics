@@ -122,7 +122,11 @@ namespace Echo.Match
                 
                 #endif
 
-                _match.Shutdown();
+                if (!NetworkManager.IsHost)
+                {
+                    Debug.Log($"[SERVER] Shutting down dedicated server");
+                    UnityEngine.Object.Destroy(NetworkManager.gameObject);
+                }
             }
         }
 

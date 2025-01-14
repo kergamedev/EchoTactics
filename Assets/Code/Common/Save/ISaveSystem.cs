@@ -4,7 +4,7 @@ namespace Echo.Common
 {
     public interface ISaveSystem
     {
-       Task SaveKeyValue(string key, object value);
-       Task<T> LoadKeyValue<T>(string key);
+       Task SaveKeyValueAsync(string key, object value);
+       Task<T> LoadKeyValueAsync<T>(string key);
     }
 }
