@@ -126,6 +126,7 @@ namespace Echo.Match
                 {
                     Debug.Log($"[SERVER] Shutting down dedicated server");
                     UnityEngine.Object.Destroy(NetworkManager.gameObject);
+                    Application.Quit();
                 }
             }
         }
